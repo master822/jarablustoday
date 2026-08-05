@@ -22,7 +22,7 @@
 <body>
     <div class="container">
         <div class="logo">Rizk</div>
-        <h2 class="title">إعادة تعيين كلمة المرور</h2>
+        <a href="{{ $actionUrl }}"><h2 class="title">إعادة تعيين كلمة المرور</h2></a>
         <p class="message">مرحباً،</p>
         <p class="message">لقد تلقينا طلباً لإعادة تعيين كلمة المرور الخاصة بحسابك في منصة Rizk.</p>
         
