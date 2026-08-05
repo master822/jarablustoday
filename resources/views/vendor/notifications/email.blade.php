@@ -40,21 +40,30 @@
             line-height: 1.7;
             margin-bottom: 30px;
         }
+        .button-container {
+            margin: 30px 0;
+        }
         .button {
             display: inline-block;
             background: #d4af37;
             color: #ffffff !important;
-            padding: 14px 40px;
+            padding: 16px 50px;
             border-radius: 10px;
             text-decoration: none !important;
             font-weight: bold;
-            font-size: 16px;
-            margin: 10px 0;
+            font-size: 18px;
             border: none;
             cursor: pointer;
+            box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
+            transition: all 0.3s ease;
         }
         .button:hover {
             background: #b8960f;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(212, 175, 55, 0.4);
+        }
+        .button:active {
+            transform: translateY(0);
         }
         .footer {
             margin-top: 30px;
@@ -72,44 +81,55 @@
             border-radius: 8px;
             margin: 20px 0;
             word-break: break-all;
+            border: 1px solid #e9ecef;
         }
         .url {
             color: #d4af37;
             text-decoration: none;
+            font-size: 14px;
         }
         .line {
             border: none;
             border-top: 1px solid #e9ecef;
             margin: 30px 0;
         }
+        .instruction {
+            color: #64748b;
+            font-size: 14px;
+            margin: 10px 0;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="card">
-            <div class="logo">Rizk</div>
+            <div class="logo">✨ Rizk</div>
             
             <h2 class="title">إعادة تعيين كلمة المرور</h2>
             
             <p class="message">
                 مرحباً،<br>
                 لقد تلقينا طلباً لإعادة تعيين كلمة المرور الخاصة بحسابك في منصة <strong>Rizk</strong>.
-                اضغط على الزر أدناه لإعادة تعيين كلمة المرور.
             </p>
             
-            <a href="{{ $actionUrl }}" class="button">
-                🔑 إعادة تعيين كلمة المرور
-            </a>
+            <div class="button-container">
+                <a href="{{ $actionUrl }}" class="button" target="_blank" rel="noopener noreferrer">
+                    🔑 إعادة تعيين كلمة المرور
+                </a>
+            </div>
             
             <p class="expiry-note">
-                ⚠️ هذا الرابط صالح لمدة {{ $expires ?? 'دقيقتين' }} فقط.
+                ⚠️ هذا الرابط صالح لمدة {{ config('auth.passwords.users.expire', 60) }} دقيقة فقط.
             </p>
             
             <hr class="line">
             
+            <p class="instruction">إذا لم يعمل الزر، انسخ هذا الرابط وألصقه في المتصفح:</p>
+            
             <div class="url-container">
-                <small style="color: #64748b;">إذا لم يعمل الزر، انسخ هذا الرابط وألصقه في المتصفح:</small><br>
-                <a href="{{ $actionUrl }}" class="url">{{ $actionUrl }}</a>
+                <a href="{{ $actionUrl }}" class="url" target="_blank" rel="noopener noreferrer">
+                    {{ $actionUrl }}
+                </a>
             </div>
             
             <p style="font-size: 14px; color: #94a3b8; margin-top: 20px;">
