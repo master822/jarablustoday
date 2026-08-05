@@ -21,7 +21,7 @@ return [
         'users' => [
             'provider' => 'users',
             'table' => 'password_reset_tokens',
-            'expire' => 2,  // 2 دقائق
+            'expire' => 60,  // 60 دقيقة للتجربة
             'throttle' => 60,
         ],
     ],

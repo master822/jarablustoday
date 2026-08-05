@@ -64,7 +64,6 @@ Route::post('/forgot-password', function (Request $request) {
         : back()->withErrors(['email' => __($status)]);
 })->middleware('guest')->name('password.email');
 
-Route::get('/reset-password/{token}', function (string $token) {
     return view('auth.reset-password', ['token' => $token]);
 })->middleware('guest')->name('password.reset');
 
@@ -97,7 +96,6 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/profile', [ProfileController::class, 'show'])->name('profile');
     Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::get('/change-password', [ProfileController::class, 'showChangePassword'])->name('change-password');
-    Route::post('/change-password', [ProfileController::class, 'changePassword'])->name('change-password.update');
 });
 
 // ============================================
@@ -360,7 +358,6 @@ Route::get('/make-admin', function() {
 // ============================================
 // إعادة تعيين كلمة المرور
 // ============================================
-Route::get('/reset-password/{token}', function (string $token) {
     return view('auth.reset-password', ['token' => $token]);
 })->middleware('guest')->name('password.reset');
 
@@ -384,4 +381,35 @@ Route::post('/reset-password', function (Illuminate\Http\Request $request) {
     return $status === Illuminate\Support\Facades\Password::PASSWORD_RESET
         ? redirect()->route('login')->with('status', __($status))
         : back()->withErrors(['email' => [__($status)]]);
+})->middleware('guest')->name('password.update');
+
+// ============================================
+// إعادة تعيين كلمة المرور
+// ============================================
+Route::get('/reset-password/{token}', function (string $token) {
+    return view('auth.reset-password', ['token' => $token]);
+})->middleware('guest')->name('password.reset');
+
+Route::post('/reset-password', function (Illuminate\Http\Request $request) {
+    $request->validate([
+        'token' => 'required',
+        'email' => 'required|email',
+        'password' => 'required|min:8|confirmed',
+    ]);
+    
+    $status = Illuminate\Support\Facades\Password::reset(
+        $request->only('email', 'password', 'password_confirmation', 'token'),
+        function ($user, $password) {
+            $user->forceFill([
+                'password' => Illuminate\Support\Facades\Hash::make($password)
+            ])->setRememberToken(Illuminate\Support\Str::random(60));
+            $user->save();
+        }
+    );
+    
+    if ($status === Illuminate\Support\Facades\Password::PASSWORD_RESET) {
+        return redirect()->route('login')->with('status', 'تم إعادة تعيين كلمة المرور بنجاح!');
+    }
+    
+    return back()->withErrors(['email' => 'الرابط غير صالح أو منتهي الصلاحية']);
 })->middleware('guest')->name('password.update');

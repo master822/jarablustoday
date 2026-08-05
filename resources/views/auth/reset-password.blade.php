@@ -12,6 +12,16 @@
                     <p class="mb-0 small text-white-50">أدخل كلمة المرور الجديدة</p>
                 </div>
                 <div class="card-body p-4 p-md-5">
+                    @if ($errors->any())
+                        <div class="alert alert-danger">
+                            <ul class="mb-0">
+                                @foreach ($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @endif
+                    
                     <form method="POST" action="{{ route('password.update') }}">
                         @csrf
                         <input type="hidden" name="token" value="{{ $token }}">
