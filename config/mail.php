@@ -25,7 +25,7 @@ return [
         ],
     ],
     'from' => [
-        'address' => env('MAIL_FROM_ADDRESS', 'hello@example.com'),
+        'address' => env('MAIL_FROM_ADDRESS', 'postmaster@sandboxe39c6386a4b54d7b900642364cba19b2.mailgun.org'),
         'name' => env('MAIL_FROM_NAME', 'Rizk'),
     ],
     'markdown' => [
