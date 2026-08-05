@@ -29,7 +29,7 @@
                         <div class="mb-4">
                             <label class="form-label fw-semibold small">البريد الإلكتروني</label>
                             <input type="email" class="form-control form-control-lg @error('email') is-invalid @enderror" 
-                                   name="email" value="{{ old('email') }}" required 
+                                   name="email" value="{{ $email ?? old('email') }}" required 
                                    placeholder="example@email.com" style="border-radius: 10px;">
                             @error('email')
                                 <span class="invalid-feedback">{{ $message }}</span>
