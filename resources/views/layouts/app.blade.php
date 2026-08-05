@@ -505,6 +505,24 @@ img, video, iframe {
     .pagination-simple .page-info { font-size: 0.7rem; }
 }
     </style>
+
+<script>
+    // إغلاق القائمة الجانبية تلقائياً عند النقر خارجها
+    document.addEventListener('DOMContentLoaded', function() {
+        var navbarCollapse = document.getElementById('navbarNav');
+        var toggler = document.querySelector('.navbar-toggler');
+        
+        if (navbarCollapse && toggler) {
+            // إغلاق القائمة عند النقر في أي مكان خارجها
+            document.addEventListener('click', function(event) {
+                var isClickInside = navbarCollapse.contains(event.target) || toggler.contains(event.target);
+                if (!isClickInside && navbarCollapse.classList.contains('show')) {
+                    toggler.click();
+                }
+            });
+        }
+    });
+</script>
 </head>
 <body>
     <!-- النافبار -->
