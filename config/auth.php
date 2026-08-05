@@ -21,7 +21,7 @@ return [
         'users' => [
             'provider' => 'users',
             'table' => 'password_reset_tokens',
-            'expire' => 120,
+            'expire' => 2,
             'throttle' => 60,
         ],
     ],

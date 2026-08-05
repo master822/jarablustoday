@@ -10,6 +10,7 @@
             background-color: #f4f4f4;
             margin: 0;
             padding: 0;
+            direction: rtl;
         }
         .container {
             max-width: 600px;
@@ -43,27 +44,21 @@
         .button-container {
             margin: 30px 0;
         }
-        .button {
+        .btn-reset {
             display: inline-block;
             background: #d4af37;
             color: #ffffff !important;
             padding: 16px 50px;
             border-radius: 10px;
-            text-decoration: none !important;
+            text-decoration: none;
             font-weight: bold;
             font-size: 18px;
             border: none;
             cursor: pointer;
             box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
-            transition: all 0.3s ease;
         }
-        .button:hover {
+        .btn-reset:hover {
             background: #b8960f;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(212, 175, 55, 0.4);
-        }
-        .button:active {
-            transform: translateY(0);
         }
         .footer {
             margin-top: 30px;
@@ -74,6 +69,7 @@
             color: #ef4444;
             font-size: 14px;
             margin-top: 15px;
+            font-weight: bold;
         }
         .url-container {
             background: #f8fafc;
@@ -93,11 +89,6 @@
             border-top: 1px solid #e9ecef;
             margin: 30px 0;
         }
-        .instruction {
-            color: #64748b;
-            font-size: 14px;
-            margin: 10px 0;
-        }
     </style>
 </head>
 <body>
@@ -113,23 +104,17 @@
             </p>
             
             <div class="button-container">
-                <a href="{{ $actionUrl }}" class="button" target="_blank" rel="noopener noreferrer">
-                    🔑 إعادة تعيين كلمة المرور
-                </a>
+                <a href="{{ $actionUrl }}" class="btn-reset">🔑 إعادة تعيين كلمة المرور</a>
             </div>
             
             <p class="expiry-note">
-                ⚠️ هذا الرابط صالح لمدة {{ config('auth.passwords.users.expire', 60) }} دقيقة فقط.
+                ⚠️ هذا الرابط صالح لمدة دقيقتين فقط!
             </p>
             
             <hr class="line">
             
-            <p class="instruction">إذا لم يعمل الزر، انسخ هذا الرابط وألصقه في المتصفح:</p>
-            
             <div class="url-container">
-                <a href="{{ $actionUrl }}" class="url" target="_blank" rel="noopener noreferrer">
-                    {{ $actionUrl }}
-                </a>
+                <a href="{{ $actionUrl }}" class="url">{{ $actionUrl }}</a>
             </div>
             
             <p style="font-size: 14px; color: #94a3b8; margin-top: 20px;">
