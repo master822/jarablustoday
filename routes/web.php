@@ -363,3 +363,20 @@ Route::post('/reset-password', function (Illuminate\Http\Request $request) {
     
     return back()->withErrors(['email' => 'الرابط غير صالح أو منتهي الصلاحية']);
 })->middleware('guest')->name('password.update');
+
+// ============================================
+// إرسال رسالة من صفحة اتصل بنا
+// ============================================
+Route::post('/contact/send', function (Illuminate\Http\Request $request) {
+    $request->validate([
+        'name' => 'required|string|max:255',
+        'email' => 'required|email',
+        'subject' => 'required|string|max:255',
+        'message' => 'required|string',
+    ]);
+    
+    // يمكنك هنا حفظ الرسالة في قاعدة البيانات أو إرسال بريد إلكتروني
+    // حالياً سنعرض رسالة نجاح فقط
+    
+    return back()->with('success', '✅ تم إرسال رسالتك بنجاح! سنتواصل معك قريباً.');
+})->name('contact.send');
