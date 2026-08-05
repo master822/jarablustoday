@@ -6,42 +6,49 @@
 <div class="container py-5">
     <div class="row justify-content-center">
         <div class="col-md-6">
-            <div class="card-rizk p-4">
-                <h4 class="text-center mb-4" style="color: var(--text-primary);">
-                    <i class="fas fa-key me-2"></i>نسيان كلمة المرور
-                </h4>
-                
-                @if(session('status'))
-                    <div class="alert alert-success">
-                        {{ session('status') }}
-                    </div>
-                @endif
-                
-                <p style="color: var(--text-muted);" class="text-center mb-4">
-                    أدخل بريدك الإلكتروني وسنرسل لك رابطاً لإعادة تعيين كلمة المرور
-                </p>
-                
-                <form action="{{ route('password.email') }}" method="POST">
-                    @csrf
+            <div class="card shadow-sm border-0" style="border-radius: 15px;">
+                <div class="card-header text-white text-center py-4" style="background: #d4af37; border-radius: 15px 15px 0 0;">
+                    <h4 class="mb-0 fw-bold">نسيان كلمة المرور</h4>
+                    <p class="mb-0 small text-white-50">سنرسل لك رابطاً لإعادة التعيين</p>
+                </div>
+                <div class="card-body p-4 p-md-5">
+                    @if (session('status'))
+                        <div class="alert alert-success text-center">{{ session('status') }}</div>
+                    @endif
                     
-                    <div class="mb-3">
-                        <label style="color: var(--text-primary);">البريد الإلكتروني *</label>
-                        <input type="email" name="email" class="form-control form-rizk" 
-                               value="{{ old('email') }}" required>
-                        @error('email')
-                            <small class="text-danger">{{ $message }}</small>
-                        @enderror
-                    </div>
+                    @if ($errors->any())
+                        <div class="alert alert-danger">
+                            <ul class="mb-0">
+                                @foreach ($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @endif
                     
-                    <button type="submit" class="btn btn-rizk-primary w-100">
-                        <i class="fas fa-paper-plane me-2"></i>إرسال رابط إعادة التعيين
-                    </button>
-                </form>
-                
-                <div class="text-center mt-3">
-                    <a href="{{ route('login') }}" style="color: var(--text-muted);">
-                        <i class="fas fa-arrow-right me-1"></i>العودة لتسجيل الدخول
-                    </a>
+                    <p class="text-muted small mb-4">أدخل بريدك الإلكتروني المسجل وسنرسل لك رابطاً لإعادة تعيين كلمة المرور. الرابط صالح لمدة دقيقتين فقط.</p>
+                    
+                    <form method="POST" action="{{ route('password.email') }}">
+                        @csrf
+                        <div class="mb-4">
+                            <label class="form-label fw-semibold small">البريد الإلكتروني</label>
+                            <input type="email" class="form-control form-control-lg @error('email') is-invalid @enderror" 
+                                   name="email" value="{{ old('email') }}" required 
+                                   placeholder="example@email.com" style="border-radius: 10px;">
+                            @error('email')
+                                <span class="invalid-feedback">{{ $message }}</span>
+                            @enderror
+                        </div>
+                        <button type="submit" class="btn w-100 py-3 text-white fw-bold" 
+                                style="background: #d4af37; border: none; border-radius: 10px; font-size: 1.1rem;">
+                            إرسال رابط إعادة التعيين
+                        </button>
+                    </form>
+                    <div class="text-center mt-4">
+                        <a href="{{ route('login') }}" class="small text-decoration-none" style="color: #d4af37;">
+                            ← العودة إلى تسجيل الدخول
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
