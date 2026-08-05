@@ -1,5 +1,3 @@
-<?php
-
 namespace App\Http\Controllers;
 
 use App\Models\Product;
@@ -18,8 +16,8 @@ class MerchantDashboardController extends Controller
         $discounts = Discount::where('user_id', $user->id)->count();
         $jobs = Job::where('user_id', $user->id)->count();
         
-        // رابط المتجر
-        $storeUrl = url('/merchants/' . $user->id);
+        // رابط المتجر الآمن (يفرض استخدام https)
+        $storeUrl = secure_url('/merchants/' . $user->id);
         
         return view('merchant.dashboard', compact('user', 'products', 'discounts', 'jobs', 'storeUrl'));
     }

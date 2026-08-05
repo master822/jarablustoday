@@ -15,8 +15,8 @@ class ServiceProviderDashboardController extends Controller
         $services = Service::where('user_id', $user->id)->count();
         $jobs = Job::where('user_id', $user->id)->count();
         
-        // رابط المتجر
-        $storeUrl = url('/merchants/' . $user->id);
+        // رابط المتجر الآمن (يفرض استخدام https)
+        $storeUrl = secure_url('/merchants/' . $user->id);
         
         return view('service-provider.dashboard', compact('user', 'services', 'jobs', 'storeUrl'));
     }
