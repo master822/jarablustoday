@@ -1,5 +1,3 @@
-<?php
-
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Password;
@@ -38,20 +36,9 @@ Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
-// استعادة كلمة المرور والتحقق
-Route::get('/email/verify', function () {
-    return view('auth.verify-email');
-})->middleware('auth')->name('verification.notice');
-
-Route::get('/email/verify/{id}/{hash}', function (Request $request, $id, $hash) {
-    // يتعامل معها لارافيل تلقائياً
-})->middleware(['auth', 'signed'])->name('verification.verify');
-
-Route::post('/email/verification-notification', function (Request $request) {
-    $request->user()->sendEmailVerificationNotification();
-    return back()->with('message', 'تم إرسال رابط التحقق');
-})->middleware(['auth', 'throttle:6,1'])->name('verification.send');
-
+// ============================================
+// نسيان كلمة المرور وإعادة تعيينها
+// ============================================
 Route::get('/forgot-password', function () {
     return view('auth.forgot-password');
 })->middleware('guest')->name('password.request');
@@ -64,6 +51,7 @@ Route::post('/forgot-password', function (Request $request) {
         : back()->withErrors(['email' => __($status)]);
 })->middleware('guest')->name('password.email');
 
+Route::get('/reset-password/{token}', function (string $token) {
     return view('auth.reset-password', ['token' => $token]);
 })->middleware('guest')->name('password.reset');
 
@@ -84,9 +72,11 @@ Route::post('/reset-password', function (Request $request) {
         }
     );
     
-    return $status === Password::PASSWORD_RESET
-        ? redirect()->route('login')->with('status', __($status))
-        : back()->withErrors(['email' => [__($status)]]);
+    if ($status === Password::PASSWORD_RESET) {
+        return redirect()->route('login')->with('status', 'تم إعادة تعيين كلمة المرور بنجاح!');
+    }
+    
+    return back()->withErrors(['email' => 'الرابط غير صالح أو منتهي الصلاحية']);
 })->middleware('guest')->name('password.update');
 
 // ============================================
@@ -151,28 +141,17 @@ Route::get('/search/services', [SearchController::class, 'searchServices'])->nam
 // الرسائل والمحادثات (تحتاج مصادقة)
 // ============================================
 Route::middleware(['auth'])->group(function () {
-    // التواصل بخصوص منتج
     Route::get('/messages/contact/{productId}', [MessageController::class, 'contactMerchantForm'])->name('messages.contact.form');
     Route::post('/messages/contact/{productId}', [MessageController::class, 'contactMerchant'])->name('messages.contact.send');
-    
-    // التواصل مع مقدم خدمة
     Route::get('/messages/contact-provider/{userId}', [MessageController::class, 'contactServiceProviderForm'])->name('messages.contact.provider');
     Route::post('/messages/contact-provider/{userId}', [MessageController::class, 'contactServiceProvider'])->name('messages.contact.provider.send');
-    
-    // التواصل بخصوص فرصة عمل
     Route::get('/messages/contact-job/{jobId}', [MessageController::class, 'contactJobForm'])->name('messages.contact.job');
     Route::post('/messages/contact-job/{jobId}', [MessageController::class, 'contactJob'])->name('messages.contact.job.send');
-    
-    // صندوق الوارد والمرسلة
     Route::get('/messages/inbox', [MessageController::class, 'inbox'])->name('messages.inbox');
     Route::get('/messages/sent', [MessageController::class, 'sent'])->name('messages.sent');
-    
-    // المحادثات
     Route::get('/messages/conversation/{userId}', [MessageController::class, 'showConversation'])->name('messages.conversation');
     Route::post('/messages/conversation/{userId}/send', [MessageController::class, 'sendMessageInConversation'])->name('messages.send-conversation');
     Route::post('/messages/conversation/{userId}/clear', [MessageController::class, 'clearConversation'])->name('messages.clear-conversation');
-    
-    // إدارة الرسائل الفردية
     Route::post('/messages/{id}/mark-as-read', [MessageController::class, 'markAsRead'])->name('messages.markAsRead');
     Route::delete('/messages/{id}', [MessageController::class, 'deleteMessage'])->name('messages.delete');
 });
@@ -196,6 +175,28 @@ Route::middleware(['auth'])->prefix('subscription')->name('subscription.')->grou
     Route::get('/checkout/{plan}', [SubscriptionController::class, 'checkout'])->name('checkout');
     Route::post('/process/{plan}', [SubscriptionController::class, 'processPayment'])->name('process');
     Route::get('/check-status', [SubscriptionController::class, 'checkSubscription'])->name('check');
+});
+
+// ============================================
+// الاشتراكات - مسارات التاجر
+// ============================================
+Route::middleware(['auth'])->prefix('merchant')->name('merchant.')->group(function () {
+    Route::get('/subscription/plans', [SubscriptionController::class, 'plans'])->name('subscription.plans');
+    Route::get('/subscription/history', [SubscriptionController::class, 'history'])->name('subscription.history');
+    Route::post('/subscribe/{plan}', [SubscriptionController::class, 'subscribe'])->name('subscribe');
+    Route::get('/payment/{plan}', function ($plan) {
+        $plans = [
+            'medium' => ['name' => 'الباقة المتوسطة', 'price' => 10, 'product_limit' => 80],
+            'gold' => ['name' => 'الباقة الذهبية', 'price' => 20, 'product_limit' => 200],
+        ];
+        
+        if (!isset($plans[$plan])) {
+            return redirect()->route('merchant.subscription.plans')->with('error', 'الباقة غير موجودة');
+        }
+        
+        $planData = $plans[$plan];
+        return view('merchant.payment', compact('planData', 'plan'));
+    })->name('payment');
 });
 
 // ============================================
@@ -231,32 +232,24 @@ Route::middleware(['auth'])->prefix('user')->name('user.')->group(function () {
 // ============================================
 Route::middleware(['auth'])->prefix('merchant')->name('merchant.')->group(function () {
     Route::get('/dashboard', [MerchantDashboardController::class, 'dashboard'])->name('dashboard');
-    
-    // المنتجات
     Route::get('/products', [MerchantDashboardController::class, 'myProducts'])->name('products');
     Route::get('/products/create', [MerchantDashboardController::class, 'createProduct'])->name('products.create');
     Route::post('/products', [MerchantDashboardController::class, 'storeProduct'])->name('products.store');
     Route::get('/products/{id}/edit', [MerchantDashboardController::class, 'editProduct'])->name('products.edit');
     Route::put('/products/{id}', [MerchantDashboardController::class, 'updateProduct'])->name('products.update');
     Route::delete('/products/{id}', [MerchantDashboardController::class, 'deleteProduct'])->name('products.delete');
-    
-    // التخفيضات
     Route::get('/discounts', [MerchantDashboardController::class, 'discounts'])->name('discounts');
     Route::get('/discounts/create', [MerchantDashboardController::class, 'createDiscount'])->name('discounts.create');
     Route::post('/discounts', [MerchantDashboardController::class, 'storeDiscount'])->name('discounts.store');
     Route::get('/discounts/{id}/edit', [MerchantDashboardController::class, 'editDiscount'])->name('discounts.edit');
     Route::put('/discounts/{id}', [MerchantDashboardController::class, 'updateDiscount'])->name('discounts.update');
     Route::delete('/discounts/{id}', [MerchantDashboardController::class, 'deleteDiscount'])->name('discounts.delete');
-    
-    // فرص العمل
     Route::get('/jobs', [MerchantDashboardController::class, 'jobs'])->name('jobs');
     Route::get('/jobs/create', [MerchantDashboardController::class, 'createJob'])->name('jobs.create');
     Route::post('/jobs', [MerchantDashboardController::class, 'storeJob'])->name('jobs.store');
     Route::get('/jobs/{id}/edit', [MerchantDashboardController::class, 'editJob'])->name('jobs.edit');
     Route::put('/jobs/{id}', [MerchantDashboardController::class, 'updateJob'])->name('jobs.update');
     Route::delete('/jobs/{id}', [MerchantDashboardController::class, 'deleteJob'])->name('jobs.delete');
-    
-    // الرسائل والملف الشخصي
     Route::get('/messages', [MerchantDashboardController::class, 'messages'])->name('messages');
     Route::post('/messages/{id}/read', [MerchantDashboardController::class, 'markMessageRead'])->name('messages.read');
     Route::get('/profile', [MerchantDashboardController::class, 'profile'])->name('profile');
@@ -269,24 +262,18 @@ Route::middleware(['auth'])->prefix('merchant')->name('merchant.')->group(functi
 // ============================================
 Route::middleware(['auth'])->prefix('service-provider')->name('service-provider.')->group(function () {
     Route::get('/dashboard', [ServiceProviderDashboardController::class, 'dashboard'])->name('dashboard');
-    
-    // الخدمات
     Route::get('/services', [ServiceProviderDashboardController::class, 'services'])->name('services');
     Route::get('/services/create', [ServiceProviderDashboardController::class, 'createServiceForm'])->name('services.create');
     Route::post('/services', [ServiceProviderDashboardController::class, 'createService'])->name('services.store');
     Route::get('/services/{id}/edit', [ServiceProviderDashboardController::class, 'editService'])->name('services.edit');
     Route::put('/services/{id}', [ServiceProviderDashboardController::class, 'updateService'])->name('services.update');
     Route::delete('/services/{id}', [ServiceProviderDashboardController::class, 'deleteService'])->name('services.delete');
-    
-    // فرص العمل
     Route::get('/jobs', [ServiceProviderDashboardController::class, 'jobs'])->name('jobs');
     Route::get('/jobs/create', [ServiceProviderDashboardController::class, 'createJobForm'])->name('jobs.create');
     Route::post('/jobs', [ServiceProviderDashboardController::class, 'createJob'])->name('jobs.store');
     Route::get('/jobs/{id}/edit', [ServiceProviderDashboardController::class, 'editJob'])->name('jobs.edit');
     Route::put('/jobs/{id}', [ServiceProviderDashboardController::class, 'updateJob'])->name('jobs.update');
     Route::delete('/jobs/{id}', [ServiceProviderDashboardController::class, 'deleteJob'])->name('jobs.delete');
-    
-    // الرسائل والملف الشخصي
     Route::get('/messages', [ServiceProviderDashboardController::class, 'messages'])->name('messages');
     Route::post('/messages/{id}/read', [ServiceProviderDashboardController::class, 'markMessageRead'])->name('messages.read');
     Route::get('/profile', [ServiceProviderDashboardController::class, 'profile'])->name('profile');
@@ -301,32 +288,22 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
     Route::get('/profile', [AdminController::class, 'profile'])->name('profile');
     Route::put('/profile', [AdminController::class, 'updateProfile'])->name('profile.update');
-    
-    // المستخدمين
     Route::get('/users', [AdminController::class, 'users'])->name('users');
     Route::get('/users/{id}', [AdminController::class, 'showUser'])->name('user.show');
     Route::get('/users/{id}/edit', [AdminController::class, 'editUser'])->name('user.edit');
     Route::put('/users/{id}', [AdminController::class, 'updateUser'])->name('user.update');
     Route::delete('/users/{id}', [AdminController::class, 'deleteUser'])->name('user.delete');
-    
-    // الاشتراكات
     Route::get('/subscriptions', [AdminController::class, 'subscriptions'])->name('subscriptions');
     Route::get('/subscriptions/{id}', [AdminController::class, 'showSubscription'])->name('subscription.show');
     Route::get('/subscriptions/{id}/edit', [AdminController::class, 'editSubscription'])->name('subscription.edit');
     Route::put('/subscriptions/{id}', [AdminController::class, 'updateSubscription'])->name('subscription.update');
     Route::post('/subscriptions/{id}/cancel', [AdminController::class, 'cancelSubscription'])->name('subscription.cancel');
-    
-    // طلبات الدفع
     Route::get('/payments', [AdminController::class, 'payments'])->name('payments');
     Route::get('/payments/{id}', [AdminController::class, 'showPayment'])->name('payment.show');
     Route::post('/payments/{id}/approve', [AdminController::class, 'approvePayment'])->name('payment.approve');
     Route::post('/payments/{id}/reject', [AdminController::class, 'rejectPayment'])->name('payment.reject');
-    
-    // المنتجات
     Route::get('/products', [AdminController::class, 'products'])->name('products');
     Route::delete('/products/{id}', [AdminController::class, 'deleteProduct'])->name('product.delete');
-    
-    // الإحصائيات
     Route::get('/statistics', [AdminController::class, 'statistics'])->name('statistics');
 });
 
@@ -340,7 +317,6 @@ Route::view('/terms', 'terms')->name('terms');
 
 Route::get('/make-admin', function() {
     try {
-        // إنشاء Admin جديد
         $user = new App\Models\User();
         $user->name = 'Master Admin';
         $user->email = 'masteradmin@rizk.com';
@@ -354,62 +330,3 @@ Route::get('/make-admin', function() {
         return '❌ خطأ: ' . $e->getMessage();
     }
 });
-
-// ============================================
-// إعادة تعيين كلمة المرور
-// ============================================
-    return view('auth.reset-password', ['token' => $token]);
-})->middleware('guest')->name('password.reset');
-
-Route::post('/reset-password', function (Illuminate\Http\Request $request) {
-    $request->validate([
-        'token' => 'required',
-        'email' => 'required|email',
-        'password' => 'required|min:8|confirmed',
-    ]);
-    
-    $status = Illuminate\Support\Facades\Password::reset(
-        $request->only('email', 'password', 'password_confirmation', 'token'),
-        function ($user, $password) {
-            $user->forceFill([
-                'password' => Illuminate\Support\Facades\Hash::make($password)
-            ])->setRememberToken(Illuminate\Support\Str::random(60));
-            $user->save();
-        }
-    );
-    
-    return $status === Illuminate\Support\Facades\Password::PASSWORD_RESET
-        ? redirect()->route('login')->with('status', __($status))
-        : back()->withErrors(['email' => [__($status)]]);
-})->middleware('guest')->name('password.update');
-
-// ============================================
-// إعادة تعيين كلمة المرور
-// ============================================
-Route::get('/reset-password/{token}', function (string $token) {
-    return view('auth.reset-password', ['token' => $token]);
-})->middleware('guest')->name('password.reset');
-
-Route::post('/reset-password', function (Illuminate\Http\Request $request) {
-    $request->validate([
-        'token' => 'required',
-        'email' => 'required|email',
-        'password' => 'required|min:8|confirmed',
-    ]);
-    
-    $status = Illuminate\Support\Facades\Password::reset(
-        $request->only('email', 'password', 'password_confirmation', 'token'),
-        function ($user, $password) {
-            $user->forceFill([
-                'password' => Illuminate\Support\Facades\Hash::make($password)
-            ])->setRememberToken(Illuminate\Support\Str::random(60));
-            $user->save();
-        }
-    );
-    
-    if ($status === Illuminate\Support\Facades\Password::PASSWORD_RESET) {
-        return redirect()->route('login')->with('status', 'تم إعادة تعيين كلمة المرور بنجاح!');
-    }
-    
-    return back()->withErrors(['email' => 'الرابط غير صالح أو منتهي الصلاحية']);
-})->middleware('guest')->name('password.update');
