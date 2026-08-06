@@ -105,17 +105,19 @@
 .main-image-container {
     position: relative;
     width: 100%;
-    overflow: hidden;
-    cursor: crosshair;
-    background: #f8f9fa;
-    border-radius: 8px;
+    display: flex;
+    gap: 10px;
     margin-bottom: 15px;
 }
 
 .main-image-wrapper {
     position: relative;
-    width: 100%;
-    padding-bottom: 75%;
+    flex: 1;
+    aspect-ratio: 1;
+    overflow: hidden;
+    cursor: crosshair;
+    background: #f8f9fa;
+    border-radius: 8px;
 }
 
 .main-product-image {
@@ -132,14 +134,15 @@
     position: absolute;
     top: 0;
     left: 0;
-    width: 120px;
-    height: 120px;
-    background: rgba(212, 175, 55, 0.2);
-    border: 2px solid #d4af37;
+    width: 150px;
+    height: 150px;
+    background: rgba(212, 175, 55, 0.15);
+    border: 2px solid rgba(212, 175, 55, 0.5);
     border-radius: 4px;
     display: none;
     pointer-events: none;
     z-index: 5;
+    box-shadow: inset 0 0 8px rgba(212, 175, 55, 0.2);
 }
 
 /* ===== نافذة التكبير ===== */
@@ -147,9 +150,9 @@
     display: none;
     position: absolute;
     top: 0;
-    right: -105%;
+    left: 110%;
     width: 100%;
-    height: 100%;
+    aspect-ratio: 1;
     border: 2px solid #d4af37;
     border-radius: 8px;
     background: #ffffff;
@@ -162,8 +165,8 @@
     position: absolute;
     top: 0;
     left: 0;
-    width: 200%;
-    height: 200%;
+    width: 100%;
+    height: 100%;
     object-fit: contain;
 }
 
@@ -189,6 +192,7 @@
 
 .thumbnail-item:hover {
     border-color: #d4af37;
+    transform: scale(1.05);
 }
 
 .thumbnail-item.active {
@@ -304,11 +308,21 @@
 }
 
 /* ===== استجابة للشاشات الصغيرة ===== */
-@media (max-width: 768px) {
-    .main-image-wrapper {
-        padding-bottom: 100%;
+@media (max-width: 992px) {
+    .main-image-container {
+        flex-direction: column;
     }
     
+    .zoom-result {
+        display: none !important;
+    }
+    
+    .zoom-lens {
+        display: none !important;
+    }
+}
+
+@media (max-width: 768px) {
     .zoom-result {
         display: none !important;
     }
@@ -349,78 +363,133 @@
 </style>
 
 <script>
-// ===== عناصر الصفحة =====
-var mainImage = document.getElementById('mainImage');
-var zoomResult = document.getElementById('zoomResult');
-var zoomImage = document.getElementById('zoomImage');
-var zoomLens = document.getElementById('zoomLens');
-var mainContainer = document.getElementById('mainImageContainer');
+// ===== Image Zoom Configuration =====
+const ZOOM_LEVEL = 2.5; // Zoom level (2.5x = 250%)
+const LENS_SIZE = 150; // Lens size in pixels
 
-// ===== تغيير الصورة الرئيسية =====
+// ===== DOM Elements =====
+const mainContainer = document.getElementById('mainImageContainer');
+const mainImageWrapper = document.querySelector('.main-image-wrapper');
+const mainImage = document.getElementById('mainImage');
+const zoomResult = document.getElementById('zoomResult');
+const zoomImage = document.getElementById('zoomImage');
+const zoomLens = document.getElementById('zoomLens');
+
+// ===== Image State =====
+let isZoomActive = false;
+let imageDimensions = {
+    width: 0,
+    height: 0,
+    naturalWidth: 0,
+    naturalHeight: 0
+};
+
+// ===== Initialize Zoom on Image Load =====
+mainImage.addEventListener('load', function() {
+    updateImageDimensions();
+    zoomImage.src = this.src;
+});
+
+// ===== Update Image Dimensions =====
+function updateImageDimensions() {
+    if (!mainImage.complete || !mainImage.naturalHeight) return;
+    
+    const rect = mainImageWrapper.getBoundingClientRect();
+    imageDimensions = {
+        width: rect.width,
+        height: rect.height,
+        naturalWidth: mainImage.naturalWidth,
+        naturalHeight: mainImage.naturalHeight
+    };
+}
+
+// ===== Change Main Image =====
 function changeMainImage(src, element) {
     mainImage.src = src;
     zoomImage.src = src;
     
-    var items = document.querySelectorAll('.thumbnail-item');
-    for (var i = 0; i < items.length; i++) {
-        items[i].classList.remove('active');
-    }
+    // Update active thumbnail
+    document.querySelectorAll('.thumbnail-item').forEach(item => {
+        item.classList.remove('active');
+    });
     element.classList.add('active');
     
+    // Reset zoom
+    hideZoom();
+    
+    // Update dimensions when new image loads
+    mainImage.onload = function() {
+        updateImageDimensions();
+    };
+}
+
+// ===== Show Zoom =====
+function showZoom() {
+    if (window.innerWidth <= 768) return;
+    
+    isZoomActive = true;
+    zoomResult.style.display = 'block';
+    zoomLens.style.display = 'block';
+    updateImageDimensions();
+}
+
+// ===== Hide Zoom =====
+function hideZoom() {
+    isZoomActive = false;
     zoomResult.style.display = 'none';
     zoomLens.style.display = 'none';
 }
 
-// ===== تفعيل التكبير عند دخول الماوس =====
-mainContainer.addEventListener('mouseenter', function() {
-    if (window.innerWidth > 768) {
-        zoomResult.style.display = 'block';
-        zoomLens.style.display = 'block';
-    }
+// ===== Handle Mouse Enter =====
+mainImageWrapper.addEventListener('mouseenter', showZoom);
+
+// ===== Handle Mouse Leave =====
+mainImageWrapper.addEventListener('mouseleave', hideZoom);
+
+// ===== Handle Mouse Move for Zoom =====
+mainImageWrapper.addEventListener('mousemove', function(e) {
+    if (!isZoomActive || window.innerWidth <= 768) return;
+    
+    const rect = mainImageWrapper.getBoundingClientRect();
+    let x = e.clientX - rect.left;
+    let y = e.clientY - rect.top;
+    
+    // Constrain lens position within image bounds
+    x = Math.max(LENS_SIZE / 2, Math.min(x, rect.width - LENS_SIZE / 2));
+    y = Math.max(LENS_SIZE / 2, Math.min(y, rect.height - LENS_SIZE / 2));
+    
+    // Position the lens
+    zoomLens.style.left = (x - LENS_SIZE / 2) + 'px';
+    zoomLens.style.top = (y - LENS_SIZE / 2) + 'px';
+    
+    // Calculate zoom image position
+    const zoomedWidth = rect.width * ZOOM_LEVEL;
+    const zoomedHeight = rect.height * ZOOM_LEVEL;
+    
+    // Position the zoomed image
+    const offsetX = -(x * ZOOM_LEVEL - LENS_SIZE / 2);
+    const offsetY = -(y * ZOOM_LEVEL - LENS_SIZE / 2);
+    
+    zoomImage.style.width = zoomedWidth + 'px';
+    zoomImage.style.height = zoomedHeight + 'px';
+    zoomImage.style.left = offsetX + 'px';
+    zoomImage.style.top = offsetY + 'px';
 });
 
-// ===== إلغاء التكبير عند خروج الماوس =====
-mainContainer.addEventListener('mouseleave', function() {
-    zoomResult.style.display = 'none';
-    zoomLens.style.display = 'none';
-});
-
-// ===== تحريك عدسة التكبير =====
-mainContainer.addEventListener('mousemove', function(e) {
-    if (window.innerWidth <= 768) {
-        return;
-    }
-    
-    var rect = this.getBoundingClientRect();
-    var x = e.clientX - rect.left;
-    var y = e.clientY - rect.top;
-    
-    var lensWidth = zoomLens.offsetWidth;
-    var lensHeight = zoomLens.offsetHeight;
-    
-    var left = x - lensWidth / 2;
-    var top = y - lensHeight / 2;
-    
-    left = Math.max(0, Math.min(left, rect.width - lensWidth));
-    top = Math.max(0, Math.min(top, rect.height - lensHeight));
-    
-    zoomLens.style.left = left + 'px';
-    zoomLens.style.top = top + 'px';
-    
-    var scaleX = (rect.width / lensWidth) * 2;
-    var scaleY = (rect.height / lensHeight) * 2;
-    
-    zoomImage.style.width = (rect.width * scaleX) + 'px';
-    zoomImage.style.height = (rect.height * scaleY) + 'px';
-    zoomImage.style.left = -(left * scaleX) + 'px';
-    zoomImage.style.top = -(top * scaleY) + 'px';
-});
-
-// ===== إعادة ضبط عند تغيير حجم الشاشة =====
+// ===== Handle Window Resize =====
 window.addEventListener('resize', function() {
     if (window.innerWidth <= 768) {
-        zoomResult.style.display = 'none';
-        zoomLens.style.display = 'none';
+        hideZoom();
+    } else if (isZoomActive) {
+        updateImageDimensions();
+    }
+});
+
+// ===== Initialize on Page Load =====
+document.addEventListener('DOMContentLoaded', function() {
+    updateImageDimensions();
+    if (mainImage.complete) {
+        zoomImage.src = mainImage.src;
     }
 });
 </script>
