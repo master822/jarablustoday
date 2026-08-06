@@ -6,38 +6,57 @@
         <div class="col-md-8">
             <div class="card">
                 <div class="card-body">
-                    <!-- ===== صور المنتج ===== -->
-                    @if($product->images)
-                        <div class="row mb-4">
-                            @php
-                                $images = is_array($product->images) ? $product->images : json_decode($product->images, true);
-                            @endphp
-                            @if($images && count($images) > 0)
-                                <div class="col-12">
-                                    <div class="row g-2">
-                                        @foreach($images as $image)
-                                            <div class="col-4">
-                                                <img src="{{ asset('storage/' . $image) }}" 
-                                                     alt="{{ $product->name }}" 
-                                                     class="img-fluid rounded product-thumbnail"
-                                                     style="width: 100%; height: 150px; object-fit: cover; cursor: pointer;"
-                                                     onclick="openLightbox(this.src)">
-                                            </div>
-                                        @endforeach
+                    <!-- ===== عرض الصور مثل AliExpress ===== -->
+                    @php
+                        $images = is_array($product->images) ? $product->images : json_decode($product->images, true);
+                        $firstImage = ($images && count($images) > 0) ? $images[0] : null;
+                    @endphp
+
+                    <div class="row">
+                        <!-- الصور المصغرة على اليمين -->
+                        @if($images && count($images) > 0)
+                            <div class="col-2 order-md-2">
+                                <div class="thumbnail-container">
+                                    @foreach($images as $index => $image)
+                                        <div class="thumbnail-item {{ $index == 0 ? 'active' : '' }}" 
+                                             onclick="changeMainImage('{{ asset('storage/' . $image) }}', this)">
+                                            <img src="{{ asset('storage/' . $image) }}" 
+                                                 alt="{{ $product->name }}" 
+                                                 class="img-fluid rounded">
+                                        </div>
+                                    @endforeach
+                                </div>
+                            </div>
+                            
+                            <!-- الصورة الرئيسية -->
+                            <div class="col-10 order-md-1">
+                                <div class="main-image-container">
+                                    <div class="main-image-wrapper">
+                                        <img id="mainImage" 
+                                             src="{{ $firstImage ? asset('storage/' . $firstImage) : asset('images/no-image.png') }}" 
+                                             alt="{{ $product->name }}" 
+                                             class="img-fluid main-product-image">
+                                        
+                                        <!-- منطقة التكبير -->
+                                        <div class="zoom-lens" id="zoomLens"></div>
+                                    </div>
+                                    <!-- صورة التكبير المنبثقة -->
+                                    <div class="zoom-result" id="zoomResult">
+                                        <img id="zoomImage" src="" alt="تكبير الصورة">
                                     </div>
                                 </div>
-                            @else
-                                <div class="col-12 text-center">
-                                    <div class="bg-light p-5 rounded">
-                                        <i class="fas fa-image fa-4x text-muted"></i>
-                                        <p class="text-muted mt-2">لا توجد صور لهذا المنتج</p>
-                                    </div>
+                            </div>
+                        @else
+                            <div class="col-12 text-center">
+                                <div class="bg-light p-5 rounded">
+                                    <i class="fas fa-image fa-4x text-muted"></i>
+                                    <p class="text-muted mt-2">لا توجد صور لهذا المنتج</p>
                                 </div>
-                            @endif
-                        </div>
-                    @endif
+                            </div>
+                        @endif
+                    </div>
                     
-                    <h2>{{ $product->name }}</h2>
+                    <h2 class="mt-4">{{ $product->name }}</h2>
                     
                     <div class="row mt-3">
                         <div class="col-md-6">
@@ -86,161 +105,131 @@
     </div>
 </div>
 
-<!-- ===== Lightbox لتكبير الصورة ===== -->
-<div id="lightbox" class="lightbox">
-    <span class="lightbox-close" onclick="closeLightbox()">&times;</span>
-    <div class="lightbox-controls">
-        <button class="lightbox-btn" onclick="zoomIn()">➕</button>
-        <button class="lightbox-btn" onclick="zoomOut()">➖</button>
-        <button class="lightbox-btn" onclick="resetZoom()">⟲</button>
-    </div>
-    <div class="lightbox-container">
-        <div class="lightbox-wrapper" id="lightboxWrapper">
-            <img id="lightboxImage" src="" alt="صورة المنتج">
-        </div>
-    </div>
-</div>
-
 @push('styles')
 <style>
-/* ===== Lightbox Styles ===== */
-.lightbox {
-    display: none;
-    position: fixed;
+/* ===== تنسيق الصور المصغرة ===== */
+.thumbnail-container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-height: 400px;
+    overflow-y: auto;
+    padding-left: 5px;
+}
+
+.thumbnail-item {
+    cursor: pointer;
+    border: 2px solid transparent;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    padding: 2px;
+}
+
+.thumbnail-item:hover {
+    border-color: #d4af37;
+}
+
+.thumbnail-item.active {
+    border-color: #d4af37;
+    box-shadow: 0 0 10px rgba(212, 175, 55, 0.3);
+}
+
+.thumbnail-item img {
+    width: 100%;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 6px;
+}
+
+/* ===== الصورة الرئيسية والتكبير ===== */
+.main-image-container {
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+    cursor: crosshair;
+    border-radius: 8px;
+    background: #f8f9fa;
+}
+
+.main-image-wrapper {
+    position: relative;
+    width: 100%;
+    padding-bottom: 75%; /* نسبة 4:3 */
+}
+
+.main-product-image {
+    position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.95);
-    z-index: 9999;
-    overflow: hidden;
-}
-
-.lightbox.active {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-}
-
-.lightbox-close {
-    position: fixed;
-    top: 20px;
-    right: 35px;
-    color: #fff;
-    font-size: 40px;
-    font-weight: bold;
-    cursor: pointer;
-    transition: 0.3s;
-    z-index: 10001;
-    background: rgba(0,0,0,0.5);
-    width: 50px;
-    height: 50px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 50%;
-}
-
-.lightbox-close:hover {
-    color: #d4af37;
-    transform: scale(1.1);
-}
-
-.lightbox-controls {
-    position: fixed;
-    bottom: 30px;
-    left: 50%;
-    transform: translateX(-50%);
-    display: flex;
-    gap: 15px;
-    background: rgba(0, 0, 0, 0.7);
-    padding: 12px 25px;
-    border-radius: 30px;
-    z-index: 10001;
-}
-
-.lightbox-btn {
-    background: transparent;
-    border: none;
-    color: #fff;
-    font-size: 24px;
-    padding: 8px 15px;
-    cursor: pointer;
-    border-radius: 8px;
-    transition: 0.3s;
-}
-
-.lightbox-btn:hover {
-    background: rgba(212, 175, 55, 0.3);
-    color: #d4af37;
-    transform: scale(1.1);
-}
-
-.lightbox-container {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 60px;
-    overflow: hidden;
-}
-
-.lightbox-wrapper {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-    height: 100%;
-    transition: transform 0.3s ease;
-    cursor: grab;
-}
-
-.lightbox-wrapper:active {
-    cursor: grabbing;
-}
-
-#lightboxImage {
-    max-width: 90%;
-    max-height: 85%;
     object-fit: contain;
-    transition: transform 0.2s ease;
-    user-select: none;
-    -webkit-user-drag: none;
 }
 
-.product-thumbnail {
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+/* ===== عدسة التكبير ===== */
+.zoom-lens {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 150px;
+    height: 150px;
+    background: rgba(212, 175, 55, 0.2);
+    border: 2px solid #d4af37;
+    border-radius: 4px;
+    display: none;
+    pointer-events: none;
+    z-index: 5;
 }
 
-.product-thumbnail:hover {
-    transform: scale(1.05);
-    box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
+/* ===== نافذة التكبير ===== */
+.zoom-result {
+    display: none;
+    position: absolute;
+    top: 0;
+    right: -105%;
+    width: 100%;
+    height: 100%;
+    border: 2px solid #d4af37;
+    border-radius: 8px;
+    background: #fff;
+    overflow: hidden;
+    z-index: 10;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.2);
 }
 
+.zoom-result img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 200%;
+    height: 200%;
+    object-fit: contain;
+}
+
+/* ===== تحسين للشاشات الصغيرة ===== */
 @media (max-width: 768px) {
-    .lightbox-close {
-        top: 10px;
-        right: 15px;
-        font-size: 30px;
-        width: 40px;
-        height: 40px;
+    .thumbnail-container {
+        flex-direction: row;
+        max-height: none;
+        overflow-x: auto;
+        overflow-y: hidden;
     }
     
-    .lightbox-controls {
-        bottom: 20px;
-        padding: 8px 15px;
-        gap: 8px;
+    .thumbnail-item img {
+        height: 60px;
+        width: 60px;
     }
     
-    .lightbox-btn {
-        font-size: 18px;
-        padding: 5px 10px;
+    .main-image-wrapper {
+        padding-bottom: 100%;
     }
     
-    .lightbox-container {
-        padding: 40px 20px;
+    .zoom-result {
+        display: none !important;
+    }
+    
+    .zoom-lens {
+        display: none !important;
     }
 }
 </style>
@@ -248,120 +237,81 @@
 
 @push('scripts')
 <script>
-let currentZoom = 1;
-let panX = 0;
-let panY = 0;
-let isDragging = false;
-let startX, startY, startPanX, startPanY;
-let wrapper = document.getElementById('lightboxWrapper');
-let image = document.getElementById('lightboxImage');
+let mainImage = document.getElementById('mainImage');
+let zoomResult = document.getElementById('zoomResult');
+let zoomImage = document.getElementById('zoomImage');
+let zoomLens = document.getElementById('zoomLens');
+let mainContainer = document.querySelector('.main-image-container');
 
-function openLightbox(src) {
-    document.getElementById('lightbox').classList.add('active');
-    document.getElementById('lightboxImage').src = src;
-    resetZoom();
-    document.body.style.overflow = 'hidden';
+// ===== تغيير الصورة الرئيسية عند النقر على صورة مصغرة =====
+function changeMainImage(src, element) {
+    // تحديث الصورة الرئيسية
+    mainImage.src = src;
+    
+    // تحديث صورة التكبير
+    zoomImage.src = src;
+    
+    // تحديث الحالة النشطة
+    document.querySelectorAll('.thumbnail-item').forEach(item => {
+        item.classList.remove('active');
+    });
+    element.classList.add('active');
+    
+    // إعادة ضبط التكبير
+    zoomResult.style.display = 'none';
+    zoomLens.style.display = 'none';
 }
 
-function closeLightbox() {
-    document.getElementById('lightbox').classList.remove('active');
-    document.body.style.overflow = '';
-    resetZoom();
-}
-
-function zoomIn() {
-    currentZoom = Math.min(currentZoom + 0.2, 5);
-    updateTransform();
-}
-
-function zoomOut() {
-    currentZoom = Math.max(currentZoom - 0.2, 0.5);
-    updateTransform();
-}
-
-function resetZoom() {
-    currentZoom = 1;
-    panX = 0;
-    panY = 0;
-    updateTransform();
-}
-
-function updateTransform() {
-    image.style.transform = `scale(${currentZoom}) translate(${panX}px, ${panY}px)`;
-}
-
-// ===== السحب والتحريك بالماوس =====
-wrapper.addEventListener('mousedown', function(e) {
-    if (currentZoom > 1) {
-        isDragging = true;
-        startX = e.clientX;
-        startY = e.clientY;
-        startPanX = panX;
-        startPanY = panY;
-        this.style.cursor = 'grabbing';
+// ===== حدث التكبير عند تمرير الماوس =====
+mainContainer.addEventListener('mouseenter', function() {
+    if (window.innerWidth > 768) {
+        zoomResult.style.display = 'block';
+        zoomLens.style.display = 'block';
     }
 });
 
-window.addEventListener('mousemove', function(e) {
-    if (isDragging) {
-        const dx = e.clientX - startX;
-        const dy = e.clientY - startY;
-        panX = startPanX + dx;
-        panY = startPanY + dy;
-        updateTransform();
-    }
+mainContainer.addEventListener('mouseleave', function() {
+    zoomResult.style.display = 'none';
+    zoomLens.style.display = 'none';
 });
 
-window.addEventListener('mouseup', function() {
-    isDragging = false;
-    wrapper.style.cursor = currentZoom > 1 ? 'grab' : 'default';
+// ===== تحريك عدسة التكبير =====
+mainContainer.addEventListener('mousemove', function(e) {
+    if (window.innerWidth <= 768) return;
+    
+    const rect = this.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    
+    // حدود العدسة
+    const lensWidth = zoomLens.offsetWidth;
+    const lensHeight = zoomLens.offsetHeight;
+    
+    let left = x - lensWidth / 2;
+    let top = y - lensHeight / 2;
+    
+    // منع خروج العدسة عن الصورة
+    left = Math.max(0, Math.min(left, rect.width - lensWidth));
+    top = Math.max(0, Math.min(top, rect.height - lensHeight));
+    
+    zoomLens.style.left = left + 'px';
+    zoomLens.style.top = top + 'px';
+    
+    // تحديث صورة التكبير
+    const scaleX = (rect.width / lensWidth) * 2;
+    const scaleY = (rect.height / lensHeight) * 2;
+    
+    zoomImage.style.width = (rect.width * scaleX) + 'px';
+    zoomImage.style.height = (rect.height * scaleY) + 'px';
+    zoomImage.style.left = -(left * scaleX) + 'px';
+    zoomImage.style.top = -(top * scaleY) + 'px';
 });
 
-// ===== السحب باللمس للهواتف =====
-let touchStartX, touchStartY, touchPanX, touchPanY;
-
-wrapper.addEventListener('touchstart', function(e) {
-    if (currentZoom > 1 && e.touches.length === 1) {
-        const touch = e.touches[0];
-        touchStartX = touch.clientX;
-        touchStartY = touch.clientY;
-        touchPanX = panX;
-        touchPanY = panY;
-    }
-}, { passive: true });
-
-wrapper.addEventListener('touchmove', function(e) {
-    if (currentZoom > 1 && e.touches.length === 1) {
-        const touch = e.touches[0];
-        const dx = touch.clientX - touchStartX;
-        const dy = touch.clientY - touchStartY;
-        panX = touchPanX + dx;
-        panY = touchPanY + dy;
-        updateTransform();
-    }
-}, { passive: true });
-
-// ===== التكبير باستخدام عجلة الماوس =====
-wrapper.addEventListener('wheel', function(e) {
-    e.preventDefault();
-    if (e.deltaY < 0) {
-        zoomIn();
-    } else {
-        zoomOut();
-    }
-}, { passive: false });
-
-// ===== إغلاق الضوء بالضغط على ESC =====
-document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape') {
-        closeLightbox();
-    }
-});
-
-// ===== إغلاق بالضغط خارج الصورة =====
-document.getElementById('lightbox').addEventListener('click', function(e) {
-    if (e.target === this) {
-        closeLightbox();
+// ===== إعادة ضبط عند تغيير حجم الشاشة =====
+window.addEventListener('resize', function() {
+    if (window.innerWidth <= 768) {
+        zoomResult.style.display = 'none';
+        zoomLens.style.display = 'none';
     }
 });
 </script>
