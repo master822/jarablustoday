@@ -14,8 +14,8 @@
                     @endphp
 
                     @if($images && count($images) > 0)
-                        <!-- الصورة الرئيسية في المنتصف -->
-                        <div class="main-image-container">
+                        <!-- الصورة الرئيسية -->
+                        <div class="main-image-container" id="mainImageContainer">
                             <div class="main-image-wrapper">
                                 <img id="mainImage" 
                                      src="{{ asset('storage/' . $firstImage) }}" 
@@ -132,9 +132,9 @@
     position: absolute;
     top: 0;
     left: 0;
-    width: 150px;
-    height: 150px;
-    background: rgba(212, 175, 55, 0.15);
+    width: 120px;
+    height: 120px;
+    background: rgba(212, 175, 55, 0.2);
     border: 2px solid #d4af37;
     border-radius: 4px;
     display: none;
@@ -354,9 +354,9 @@ var mainImage = document.getElementById('mainImage');
 var zoomResult = document.getElementById('zoomResult');
 var zoomImage = document.getElementById('zoomImage');
 var zoomLens = document.getElementById('zoomLens');
-var mainContainer = document.querySelector('.main-image-container');
+var mainContainer = document.getElementById('mainImageContainer');
 
-// ===== تغيير الصورة الرئيسية عند النقر على صورة مصغرة =====
+// ===== تغيير الصورة الرئيسية =====
 function changeMainImage(src, element) {
     mainImage.src = src;
     zoomImage.src = src;
@@ -387,7 +387,9 @@ mainContainer.addEventListener('mouseleave', function() {
 
 // ===== تحريك عدسة التكبير =====
 mainContainer.addEventListener('mousemove', function(e) {
-    if (window.innerWidth <= 768) return;
+    if (window.innerWidth <= 768) {
+        return;
+    }
     
     var rect = this.getBoundingClientRect();
     var x = e.clientX - rect.left;
