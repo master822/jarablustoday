@@ -23,9 +23,6 @@
                                      class="main-product-image">
                                 <div class="zoom-lens" id="zoomLens"></div>
                             </div>
-                            <div class="zoom-result" id="zoomResult">
-                                <img id="zoomImage" src="{{ asset('storage/' . $firstImage) }}" alt="تكبير">
-                            </div>
                         </div>
                         
                         <!-- الصور المصغرة -->
@@ -105,15 +102,13 @@
 .main-image-container {
     position: relative;
     width: 100%;
-    display: flex;
-    gap: 10px;
     margin-bottom: 15px;
 }
 
 .main-image-wrapper {
     position: relative;
-    flex: 1;
-    aspect-ratio: 1;
+    width: 100%;
+    aspect-ratio: 1 / 1;
     overflow: hidden;
     cursor: crosshair;
     background: #f8f9fa;
@@ -127,6 +122,11 @@
     width: 100%;
     height: 100%;
     object-fit: contain;
+    transition: transform 0.1s ease-out;
+}
+
+.main-product-image.zoomed {
+    transform-origin: center;
 }
 
 /* ===== عدسة التكبير ===== */
@@ -134,40 +134,15 @@
     position: absolute;
     top: 0;
     left: 0;
-    width: 150px;
-    height: 150px;
+    width: 120px;
+    height: 120px;
     background: rgba(212, 175, 55, 0.15);
-    border: 2px solid rgba(212, 175, 55, 0.5);
-    border-radius: 4px;
+    border: 2px solid rgba(212, 175, 55, 0.6);
+    border-radius: 50%;
     display: none;
     pointer-events: none;
     z-index: 5;
-    box-shadow: inset 0 0 8px rgba(212, 175, 55, 0.2);
-}
-
-/* ===== نافذة التكبير ===== */
-.zoom-result {
-    display: none;
-    position: absolute;
-    top: 0;
-    left: 110%;
-    width: 100%;
-    aspect-ratio: 1;
-    border: 2px solid #d4af37;
-    border-radius: 8px;
-    background: #ffffff;
-    overflow: hidden;
-    z-index: 10;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.15);
-}
-
-.zoom-result img {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
+    box-shadow: 0 0 15px rgba(212, 175, 55, 0.3), inset 0 0 8px rgba(212, 175, 55, 0.1);
 }
 
 /* ===== الصور المصغرة ===== */
@@ -308,25 +283,7 @@
 }
 
 /* ===== استجابة للشاشات الصغيرة ===== */
-@media (max-width: 992px) {
-    .main-image-container {
-        flex-direction: column;
-    }
-    
-    .zoom-result {
-        display: none !important;
-    }
-    
-    .zoom-lens {
-        display: none !important;
-    }
-}
-
 @media (max-width: 768px) {
-    .zoom-result {
-        display: none !important;
-    }
-    
     .zoom-lens {
         display: none !important;
     }
@@ -363,50 +320,32 @@
 </style>
 
 <script>
-// ===== Image Zoom Configuration =====
-const ZOOM_LEVEL = 2.5; // Zoom level (2.5x = 250%)
-const LENS_SIZE = 150; // Lens size in pixels
+// ===== Zoom Configuration =====
+const ZOOM_LEVEL = 2;           // Zoom level (2x = 200%)
+const LENS_SIZE = 120;          // Lens size in pixels
 
 // ===== DOM Elements =====
-const mainContainer = document.getElementById('mainImageContainer');
 const mainImageWrapper = document.querySelector('.main-image-wrapper');
 const mainImage = document.getElementById('mainImage');
-const zoomResult = document.getElementById('zoomResult');
-const zoomImage = document.getElementById('zoomImage');
 const zoomLens = document.getElementById('zoomLens');
 
-// ===== Image State =====
+// ===== State Variables =====
 let isZoomActive = false;
-let imageDimensions = {
-    width: 0,
-    height: 0,
-    naturalWidth: 0,
-    naturalHeight: 0
-};
+let wrapperRect = null;
 
-// ===== Initialize Zoom on Image Load =====
-mainImage.addEventListener('load', function() {
-    updateImageDimensions();
-    zoomImage.src = this.src;
-});
-
-// ===== Update Image Dimensions =====
-function updateImageDimensions() {
-    if (!mainImage.complete || !mainImage.naturalHeight) return;
-    
-    const rect = mainImageWrapper.getBoundingClientRect();
-    imageDimensions = {
-        width: rect.width,
-        height: rect.height,
-        naturalWidth: mainImage.naturalWidth,
-        naturalHeight: mainImage.naturalHeight
-    };
+// ===== Update wrapper dimensions =====
+function updateWrapperRect() {
+    wrapperRect = mainImageWrapper.getBoundingClientRect();
 }
+
+// ===== Initialize on image load =====
+mainImage.addEventListener('load', function() {
+    updateWrapperRect();
+});
 
 // ===== Change Main Image =====
 function changeMainImage(src, element) {
     mainImage.src = src;
-    zoomImage.src = src;
     
     // Update active thumbnail
     document.querySelectorAll('.thumbnail-item').forEach(item => {
@@ -419,7 +358,7 @@ function changeMainImage(src, element) {
     
     // Update dimensions when new image loads
     mainImage.onload = function() {
-        updateImageDimensions();
+        updateWrapperRect();
     };
 }
 
@@ -428,16 +367,17 @@ function showZoom() {
     if (window.innerWidth <= 768) return;
     
     isZoomActive = true;
-    zoomResult.style.display = 'block';
     zoomLens.style.display = 'block';
-    updateImageDimensions();
+    mainImage.classList.add('zoomed');
 }
 
 // ===== Hide Zoom =====
 function hideZoom() {
     isZoomActive = false;
-    zoomResult.style.display = 'none';
     zoomLens.style.display = 'none';
+    mainImage.classList.remove('zoomed');
+    mainImage.style.transform = 'scale(1)';
+    mainImage.style.transformOrigin = 'center';
 }
 
 // ===== Handle Mouse Enter =====
@@ -450,47 +390,41 @@ mainImageWrapper.addEventListener('mouseleave', hideZoom);
 mainImageWrapper.addEventListener('mousemove', function(e) {
     if (!isZoomActive || window.innerWidth <= 768) return;
     
-    const rect = mainImageWrapper.getBoundingClientRect();
-    let x = e.clientX - rect.left;
-    let y = e.clientY - rect.top;
+    updateWrapperRect();
     
-    // Constrain lens position within image bounds
-    x = Math.max(LENS_SIZE / 2, Math.min(x, rect.width - LENS_SIZE / 2));
-    y = Math.max(LENS_SIZE / 2, Math.min(y, rect.height - LENS_SIZE / 2));
+    // Calculate cursor position relative to wrapper
+    const x = e.clientX - wrapperRect.left;
+    const y = e.clientY - wrapperRect.top;
     
-    // Position the lens
-    zoomLens.style.left = (x - LENS_SIZE / 2) + 'px';
-    zoomLens.style.top = (y - LENS_SIZE / 2) + 'px';
+    // Constrain lens position within wrapper bounds
+    const constrainedX = Math.max(LENS_SIZE / 2, Math.min(x, wrapperRect.width - LENS_SIZE / 2));
+    const constrainedY = Math.max(LENS_SIZE / 2, Math.min(y, wrapperRect.height - LENS_SIZE / 2));
     
-    // Calculate zoom image position
-    const zoomedWidth = rect.width * ZOOM_LEVEL;
-    const zoomedHeight = rect.height * ZOOM_LEVEL;
+    // Position the lens circle
+    zoomLens.style.left = (constrainedX - LENS_SIZE / 2) + 'px';
+    zoomLens.style.top = (constrainedY - LENS_SIZE / 2) + 'px';
     
-    // Position the zoomed image
-    const offsetX = -(x * ZOOM_LEVEL - LENS_SIZE / 2);
-    const offsetY = -(y * ZOOM_LEVEL - LENS_SIZE / 2);
+    // Calculate zoom transformation
+    // The image zooms in towards the lens position
+    const centerX = (constrainedX / wrapperRect.width) * 100;
+    const centerY = (constrainedY / wrapperRect.height) * 100;
     
-    zoomImage.style.width = zoomedWidth + 'px';
-    zoomImage.style.height = zoomedHeight + 'px';
-    zoomImage.style.left = offsetX + 'px';
-    zoomImage.style.top = offsetY + 'px';
+    // Apply zoom with transform origin at lens position
+    mainImage.style.transformOrigin = centerX + '% ' + centerY + '%';
+    mainImage.style.transform = 'scale(' + ZOOM_LEVEL + ')';
 });
 
 // ===== Handle Window Resize =====
 window.addEventListener('resize', function() {
+    updateWrapperRect();
     if (window.innerWidth <= 768) {
         hideZoom();
-    } else if (isZoomActive) {
-        updateImageDimensions();
     }
 });
 
 // ===== Initialize on Page Load =====
 document.addEventListener('DOMContentLoaded', function() {
-    updateImageDimensions();
-    if (mainImage.complete) {
-        zoomImage.src = mainImage.src;
-    }
+    updateWrapperRect();
 });
 </script>
 @endsection
