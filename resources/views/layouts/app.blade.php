@@ -1682,6 +1682,12 @@ body.auth-layout {
                                     <li><a class="dropdown-item" href="{{ route('merchant.dashboard') }}">لوحة التحكم</a></li>
                                     <li><a class="dropdown-item" href="{{ route('merchant.products') }}">منتجاتي</a></li>
                                     <li><a class="dropdown-item" href="{{ route('merchant.discounts') }}">تخفيضاتي</a></li>
+                                    <li>
+                                        <a class="dropdown-item" href="{{ route('user.posts') }}">
+                                            <i class="fas fa-layer-group me-1"></i>
+                                            منشوراتي
+                                        </a>
+                                    </li>
                                     <li><a class="dropdown-item" href="{{ route('subscription.plans') }}"><i class="fas fa-crown me-2"></i>باقاتي</a></li>
                                     <li><a class="dropdown-item" href="{{ route('merchant.jobs') }}">فرص العمل</a></li>
                                 </ul>
@@ -1696,6 +1702,12 @@ body.auth-layout {
                                 <ul class="dropdown-menu">
                                     <li><a class="dropdown-item" href="{{ route('service-provider.dashboard') }}">لوحة التحكم</a></li>
                                     <li><a class="dropdown-item" href="{{ route('service-provider.services') }}">خدماتي</a></li>
+                                    <li>
+                                        <a class="dropdown-item" href="{{ route('user.posts') }}">
+                                            <i class="fas fa-layer-group me-1"></i>
+                                            منشوراتي
+                                        </a>
+                                    </li>
                                     <li><a class="dropdown-item" href="{{ route('service-provider.jobs') }}">فرص العمل</a></li>
                                 </ul>
                             </li>
