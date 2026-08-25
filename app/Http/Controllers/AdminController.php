@@ -119,38 +119,80 @@ public function updateProfile(Request $request)
     public function updateUser(Request $request, $id)
     {
         $user = User::findOrFail($id);
-        
+
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email,' . $id,
             'phone' => 'nullable|string|max:20',
             'city' => 'nullable|string|max:255',
-            'user_type' => 'required|in:user,merchant,admin',
+            'user_type' => 'required|in:user,merchant',
             'is_active' => 'boolean',
         ]);
 
+        $masterAdminEmail = 'mastersniper822@gmail.com';
+
+        // لا يمكن تغيير هوية أو صلاحيات الـAdmin الرئيسي
+        if (
+            strtolower(trim($user->email)) === $masterAdminEmail ||
+            $user->id === 9
+        ) {
+            $user->name = 'Muhammad Admin';
+            $user->email = $masterAdminEmail;
+            $user->user_type = 'admin';
+            $user->is_active = true;
+
+            if ($request->filled('password')) {
+                $user->password = Hash::make($request->password);
+            }
+
+            $user->save();
+
+            return redirect()
+                ->route('admin.users')
+                ->with('success', 'تم تحديث بيانات المستخدم مع الحفاظ على صلاحيات المسؤول الرئيسي');
+        }
+
+        // المستخدمون الآخرون لا يمكن تحويلهم إلى Admin
         $user->name = $request->name;
         $user->email = $request->email;
         $user->phone = $request->phone;
         $user->city = $request->city;
         $user->user_type = $request->user_type;
         $user->is_active = $request->has('is_active');
-        
+
         if ($request->filled('password')) {
             $user->password = Hash::make($request->password);
         }
-        
+
         $user->save();
 
-        return redirect()->route('admin.users')->with('success', 'تم تحديث المستخدم بنجاح');
+        return redirect()
+            ->route('admin.users')
+            ->with('success', 'تم تحديث المستخدم بنجاح');
     }
 
     // حذف مستخدم
     public function deleteUser($id)
     {
         $user = User::findOrFail($id);
+
+        $masterAdminEmail = 'mastersniper822@gmail.com';
+
+        // حماية الـAdmin الرئيسي من الحذف
+        if (
+            strtolower(trim($user->email)) === $masterAdminEmail ||
+            $user->id === 9
+        ) {
+            return redirect()
+                ->route('admin.users')
+                ->with('error', 'لا يمكن حذف حساب المسؤول الرئيسي');
+        }
+
         $user->delete();
-        return redirect()->route('admin.users')->with('success', 'تم حذف المستخدم بنجاح');
+
+        return redirect()
+            ->route('admin.users')
+            ->with('success', 'تم حذف المستخدم بنجاح');
     }
 
     // عرض جميع الاشتراكات

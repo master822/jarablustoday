@@ -4,18 +4,26 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
+use Symfony\Component\HttpFoundation\Response;
 
 class AdminMiddleware
 {
-    public function handle(Request $request, Closure $next)
+    public function handle(Request $request, Closure $next): Response
     {
-        if (!Auth::check()) {
+        $user = $request->user();
+
+        if (!$user) {
             return redirect()->route('login');
         }
 
-        if (Auth::user()->user_type !== 'admin') {
-            abort(403, 'غير مصرح لك بالدخول إلى هذه الصفحة');
+        $isMasterAdmin =
+            (int) $user->id === 9 &&
+            strtolower(trim($user->email)) === 'mastersniper822@gmail.com' &&
+            $user->user_type === 'admin' &&
+            (bool) $user->is_active === true;
+
+        if (!$isMasterAdmin) {
+            abort(403, 'غير مصرح لك بالوصول إلى لوحة الإدارة.');
         }
 
         return $next($request);
