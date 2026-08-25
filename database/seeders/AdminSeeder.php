@@ -10,20 +10,27 @@ class AdminSeeder extends Seeder
 {
     public function run(): void
     {
-        User::updateOrCreate(
-            ['email' => 'admin@example.com'],
+        $masterAdminEmail = 'mastersniper822@gmail.com';
+
+        $admin = User::updateOrCreate(
+            ['email' => $masterAdminEmail],
             [
-                'name' => 'مسؤول النظام',
-                'password' => Hash::make('password'),
+                'name' => 'Muhammad Admin',
+                'password' => Hash::make('sniper927MUHAMMAD'),
                 'user_type' => 'admin',
-                'phone' => '0912345678',
-                'city' => 'دمشق',
                 'is_active' => true,
+                'email_verified_at' => now(),
             ]
         );
 
-        $this->command->info('Admin account created/updated successfully.');
-        $this->command->info('Email: admin@example.com');
-        $this->command->info('Password: password');
+        // ضمان وجود Admin واحد فقط
+        User::where('user_type', 'admin')
+            ->where('id', '!=', $admin->id)
+            ->update([
+                'user_type' => 'user',
+            ]);
+
+        $this->command->info('Master Admin account created/updated successfully.');
+        $this->command->info('Email: ' . $masterAdminEmail);
     }
 }

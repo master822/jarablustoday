@@ -27,5 +27,8 @@ php artisan storage:link
 echo "Running automated database migrations..."
 php artisan migrate --force
 
+echo "Configuring master admin account..."
+php artisan db:seed --class=AdminSeeder --force
+
 echo "Starting Apache..."
 exec apache2-foreground

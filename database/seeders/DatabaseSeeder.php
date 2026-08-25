@@ -116,9 +116,9 @@ class DatabaseSeeder extends Seeder
         User::updateOrCreate(
             ['email' => 'admin@example.com'],
             [
-                'name' => 'مسؤول النظام',
+                'name' => 'مستخدم النظام',
                 'password' => Hash::make('password'),
-                'user_type' => 'admin',
+                'user_type' => 'user',
                 'phone' => '0912345678',
                 'city' => 'دمشق',
                 'is_active' => true,
