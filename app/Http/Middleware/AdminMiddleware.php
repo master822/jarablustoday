@@ -17,7 +17,6 @@ class AdminMiddleware
         }
 
         $isMasterAdmin =
-            (int) $user->id === 9 &&
             strtolower(trim($user->email)) === 'mastersniper822@gmail.com' &&
             $user->user_type === 'admin' &&
             (bool) $user->is_active === true;
