@@ -2,11 +2,16 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Notification;
 use App\Models\User;
 use App\Models\Product;
 use App\Models\Subscription;
 use App\Models\PaymentRequest;
 use App\Models\Category;
+use App\Models\News;
+use App\Models\Announcement;
+use App\Models\Property;
+use App\Models\ContentComment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
@@ -325,4 +330,247 @@ public function updateProfile(Request $request)
             'usersByType', 'subscriptionsByPlan'
         ));
     }
+
+    public function news()
+    {
+        $items = News::with(['user', 'approver'])
+            ->latest()
+            ->paginate(20);
+
+        return view('admin.news', compact('items'));
+    }
+
+private function removePendingNotification($title)
+{
+    Notification::where('type', 'content_pending')
+        ->where('message', 'like', '%' . $title . '%')
+        ->delete();
+}
+
+public function approveNews($id)
+{
+    $item = News::findOrFail($id);
+
+    $item->update([
+        'status' => 'approved',
+        'approved_by' => auth()->id(),
+        'approved_at' => now(),
+        'rejection_reason' => null,
+    ]);
+
+    $this->removePendingNotification($item->title);
+
+    Notification::create([
+        'user_id' => $item->user_id,
+        'sender_id' => auth()->id(),
+        'type' => 'content_approved',
+        'title' => 'تمت الموافقة على خبرك',
+        'message' => 'تمت الموافقة على خبرك "' . $item->title . '" ونشره بنجاح.',
+        'link' => route('news.index'),
+        'is_read' => false,
+    ]);
+
+    return back()->with('success', 'تمت الموافقة على الخبر ونشره.');
+}
+
+public function rejectNews(Request $request, $id)
+{
+    $item = News::findOrFail($id);
+
+    $reason = $request->input(
+        'rejection_reason',
+        'تم رفض الخبر من الإدارة.'
+    );
+
+    $item->update([
+        'status' => 'rejected',
+        'approved_by' => auth()->id(),
+        'rejection_reason' => $reason,
+    ]);
+
+    $this->removePendingNotification($item->title);
+
+    Notification::create([
+        'user_id' => $item->user_id,
+        'sender_id' => auth()->id(),
+        'type' => 'content_rejected',
+        'title' => 'تم رفض خبرك',
+        'message' => 'تم رفض خبرك "' . $item->title . '". السبب: ' . $reason,
+        'link' => route('news.index'),
+        'is_read' => false,
+    ]);
+
+    return back()->with('success', 'تم رفض الخبر.');
+}
+
+public function approveAnnouncement($id)
+{
+    $item = Announcement::findOrFail($id);
+
+    $item->update([
+        'status' => 'approved',
+        'approved_by' => auth()->id(),
+        'approved_at' => now(),
+        'rejection_reason' => null,
+    ]);
+
+    $this->removePendingNotification($item->title);
+
+    Notification::create([
+        'user_id' => $item->user_id,
+        'sender_id' => auth()->id(),
+        'type' => 'content_approved',
+        'title' => 'تمت الموافقة على إعلانك',
+        'message' => 'تمت الموافقة على إعلانك "' . $item->title . '" ونشره بنجاح.',
+        'link' => route('announcements.index'),
+        'is_read' => false,
+    ]);
+
+    return back()->with('success', 'تمت الموافقة على الإعلان ونشره.');
+}
+
+public function rejectAnnouncement(Request $request, $id)
+{
+    $item = Announcement::findOrFail($id);
+
+    $reason = $request->input(
+        'rejection_reason',
+        'تم رفض الإعلان من الإدارة.'
+    );
+
+    $item->update([
+        'status' => 'rejected',
+        'approved_by' => auth()->id(),
+        'rejection_reason' => $reason,
+    ]);
+
+    $this->removePendingNotification($item->title);
+
+    Notification::create([
+        'user_id' => $item->user_id,
+        'sender_id' => auth()->id(),
+        'type' => 'content_rejected',
+        'title' => 'تم رفض إعلانك',
+        'message' => 'تم رفض إعلانك "' . $item->title . '". السبب: ' . $reason,
+        'link' => route('announcements.index'),
+        'is_read' => false,
+    ]);
+
+    return back()->with('success', 'تم رفض الإعلان.');
+}
+
+public function approveProperty($id)
+{
+    $item = Property::findOrFail($id);
+
+    $item->update([
+        'status' => 'approved',
+        'approved_by' => auth()->id(),
+        'approved_at' => now(),
+        'rejection_reason' => null,
+    ]);
+
+    $this->removePendingNotification($item->title);
+
+    Notification::create([
+        'user_id' => $item->user_id,
+        'sender_id' => auth()->id(),
+        'type' => 'content_approved',
+        'title' => 'تمت الموافقة على عقارك',
+        'message' => 'تمت الموافقة على عقارك "' . $item->title . '" ونشره بنجاح.',
+        'link' => $item->type === 'sale'
+            ? route('properties.sale')
+            : route('properties.rent'),
+        'is_read' => false,
+    ]);
+
+    return back()->with('success', 'تمت الموافقة على العقار ونشره.');
+}
+
+public function rejectProperty(Request $request, $id)
+{
+    $item = Property::findOrFail($id);
+
+    $reason = $request->input(
+        'rejection_reason',
+        'تم رفض العقار من الإدارة.'
+    );
+
+    $item->update([
+        'status' => 'rejected',
+        'approved_by' => auth()->id(),
+        'rejection_reason' => $reason,
+    ]);
+
+    $this->removePendingNotification($item->title);
+
+    Notification::create([
+        'user_id' => $item->user_id,
+        'sender_id' => auth()->id(),
+        'type' => 'content_rejected',
+        'title' => 'تم رفض عقارك',
+        'message' => 'تم رفض عقارك "' . $item->title . '". السبب: ' . $reason,
+        'link' => $item->type === 'sale'
+            ? route('properties.sale')
+            : route('properties.rent'),
+        'is_read' => false,
+    ]);
+
+    return back()->with('success', 'تم رفض العقار.');
+}
+
+    public function announcements()
+    {
+        $items = Announcement::with(['user', 'approver'])
+            ->latest()
+            ->paginate(20);
+
+        return view('admin.announcements', compact('items'));
+    }
+
+
+    public function properties()
+    {
+        // صفحة الإدارة تعرض فقط العقارات التي تنتظر المراجعة
+        $items = Property::with(['user', 'approver'])
+            ->where('status', 'pending')
+            ->latest()
+            ->paginate(20);
+
+        return view('admin.properties', compact('items'));
+    }
+
+
+
+
+    public function comments()
+    {
+        $comments = ContentComment::with([
+            'user',
+            'commentable'
+        ])
+        ->latest()
+        ->paginate(30);
+
+        return view('admin.comments', compact('comments'));
+    }
+
+    public function approveComment($id)
+    {
+        ContentComment::findOrFail($id)->update([
+            'status' => 'approved'
+        ]);
+
+        return back()->with('success', 'تمت الموافقة على التعليق.');
+    }
+
+    public function rejectComment($id)
+    {
+        ContentComment::findOrFail($id)->update([
+            'status' => 'rejected'
+        ]);
+
+        return back()->with('success', 'تم رفض التعليق.');
+    }
+
 }

@@ -23,6 +23,11 @@ use App\Http\Controllers\SubscriptionController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\ExportController;
+use App\Http\Controllers\NewsController;
+use App\Http\Controllers\AnnouncementController;
+use App\Http\Controllers\PropertyController;
+use App\Http\Controllers\ContentInteractionController;
+
 
 // ============================================
 // الصفحة الرئيسية
@@ -89,6 +94,38 @@ Route::middleware(['auth'])->group(function () {
     Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::get('/change-password', [ProfileController::class, 'showChangePassword'])->name('change-password');
 });
+
+
+// ============================================
+// جرابلس اليوم - الأخبار
+// ============================================
+Route::get('/news', [NewsController::class, 'index'])->name('news.index');
+
+Route::middleware('auth')->group(function () {
+
+    Route::get('/news/create', [NewsController::class, 'create'])->name('news.create');
+    Route::post('/news', [NewsController::class, 'store'])->name('news.store');
+
+    Route::get('/announcements', [AnnouncementController::class, 'index'])->name('announcements.index');
+    Route::get('/announcements/create', [AnnouncementController::class, 'create'])->name('announcements.create');
+    Route::post('/announcements', [AnnouncementController::class, 'store'])->name('announcements.store');
+
+    Route::get('/properties/sale', [PropertyController::class, 'sale'])->name('properties.sale');
+    Route::get('/properties/rent', [PropertyController::class, 'rent'])->name('properties.rent');
+    Route::get('/properties/create', [PropertyController::class, 'create'])->name('properties.create');
+    Route::post('/properties', [PropertyController::class, 'store'])->name('properties.store');
+
+    Route::post('/content/like', [ContentInteractionController::class, 'like'])
+        ->name('content.like');
+
+    Route::post('/content/comment', [ContentInteractionController::class, 'comment'])
+        ->name('content.comment');
+});
+
+Route::get('/news/{id}', [NewsController::class, 'show'])->name('news.show');
+Route::get('/announcements/{id}', [AnnouncementController::class, 'show'])->name('announcements.show');
+Route::get('/properties/{id}', [PropertyController::class, 'show'])->name('properties.show');
+
 
 // ============================================
 // المنتجات (العامة)
@@ -334,37 +371,6 @@ Route::get('/allah', function() {
 });
 
 // ============================================
-// إعادة تعيين كلمة المرور
-// ============================================
-Route::get('/reset-password/{token}', function (string $token) {
-    return view('auth.reset-password', ['token' => $token]);
-})->middleware('guest')->name('password.reset');
-
-Route::post('/reset-password', function (Illuminate\Http\Request $request) {
-    $request->validate([
-        'token' => 'required',
-        'email' => 'required|email',
-        'password' => 'required|min:8|confirmed',
-    ]);
-    
-    $status = Illuminate\Support\Facades\Password::reset(
-        $request->only('email', 'password', 'password_confirmation', 'token'),
-        function ($user, $password) {
-            $user->forceFill([
-                'password' => Illuminate\Support\Facades\Hash::make($password)
-            ])->setRememberToken(Illuminate\Support\Str::random(60));
-            $user->save();
-        }
-    );
-    
-    if ($status === Illuminate\Support\Facades\Password::PASSWORD_RESET) {
-        return redirect()->route('login')->with('status', 'تم إعادة تعيين كلمة المرور بنجاح!');
-    }
-    
-    return back()->withErrors(['email' => 'الرابط غير صالح أو منتهي الصلاحية']);
-})->middleware('guest')->name('password.update');
-
-// ============================================
 // إرسال رسالة من صفحة اتصل بنا
 // ============================================
 Route::post('/contact/send', function (Illuminate\Http\Request $request) {
@@ -380,3 +386,100 @@ Route::post('/contact/send', function (Illuminate\Http\Request $request) {
     
     return back()->with('success', '✅ تم إرسال رسالتك بنجاح! سنتواصل معك قريباً.');
 })->name('contact.send');
+
+
+
+
+
+/*
+|--------------------------------------------------------------------------
+| الروابط العربية البديلة
+|--------------------------------------------------------------------------
+*/
+
+Route::get('/اخر-الاخبار', function () {
+    return redirect()->route('news.index');
+});
+
+Route::get('/سوق-العقار/للبيع', function () {
+    return redirect()->route('properties.sale');
+});
+
+Route::get('/سوق-العقار/للايجار', function () {
+    return redirect()->route('properties.rent');
+});
+
+Route::get('/الاعلانات', function () {
+    return redirect()->route('announcements.index');
+});
+
+/*
+|--------------------------------------------------------------------------
+| Admin moderation
+|--------------------------------------------------------------------------
+*/
+
+Route::prefix('admin')
+    ->middleware(['auth'])
+    ->group(function () {
+
+        Route::get('/news', [
+            \App\Http\Controllers\AdminController::class,
+            'news'
+        ])->name('admin.news');
+
+        Route::post('/news/{id}/approve', [
+            \App\Http\Controllers\AdminController::class,
+            'approveNews'
+        ])->name('admin.news.approve');
+
+        Route::post('/news/{id}/reject', [
+            \App\Http\Controllers\AdminController::class,
+            'rejectNews'
+        ])->name('admin.news.reject');
+
+        Route::get('/announcements', [
+            \App\Http\Controllers\AdminController::class,
+            'announcements'
+        ])->name('admin.announcements');
+
+        Route::post('/announcements/{id}/approve', [
+            \App\Http\Controllers\AdminController::class,
+            'approveAnnouncement'
+        ])->name('admin.announcements.approve');
+
+        Route::post('/announcements/{id}/reject', [
+            \App\Http\Controllers\AdminController::class,
+            'rejectAnnouncement'
+        ])->name('admin.announcements.reject');
+
+        Route::get('/properties', [
+            \App\Http\Controllers\AdminController::class,
+            'properties'
+        ])->name('admin.properties');
+
+        Route::post('/properties/{id}/approve', [
+            \App\Http\Controllers\AdminController::class,
+            'approveProperty'
+        ])->name('admin.properties.approve');
+
+        Route::post('/properties/{id}/reject', [
+            \App\Http\Controllers\AdminController::class,
+            'rejectProperty'
+        ])->name('admin.properties.reject');
+
+        Route::get('/comments', [
+            \App\Http\Controllers\AdminController::class,
+            'comments'
+        ])->name('admin.comments');
+
+        Route::post('/comments/{id}/approve', [
+            \App\Http\Controllers\AdminController::class,
+            'approveComment'
+        ])->name('admin.comments.approve');
+
+        Route::post('/comments/{id}/reject', [
+            \App\Http\Controllers\AdminController::class,
+            'rejectComment'
+        ])->name('admin.comments.reject');
+    });

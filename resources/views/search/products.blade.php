@@ -60,7 +60,7 @@
                 <div class="product-card">
                     <div class="product-img-wrapper">
                         @php
-                            $imageUrl = asset('storage/products/product_1.png');
+                            $imageUrl = asset('images/product-placeholder.svg');
                             if ($product->images) {
                                 $images = json_decode($product->images, true);
                                 if (is_array($images) && count($images) > 0) {

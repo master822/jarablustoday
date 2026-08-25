@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="450" viewBox="0 0 600 450">
+<rect width="600" height="450" fill="#e5e7eb"/>
+<rect x="170" y="105" width="260" height="210" rx="24" fill="#cbd5e1"/>
+<circle cx="250" cy="180" r="35" fill="#94a3b8"/>
+<path d="M190 285l65-65 45 45 35-35 75 75H190z" fill="#94a3b8"/>
+<text x="300" y="370" text-anchor="middle" font-family="Arial,sans-serif" font-size="28" fill="#475569">Rizk</text>
+</svg>

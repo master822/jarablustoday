@@ -60,7 +60,7 @@
             <div class="col-md-4 col-lg-3">
                 <div class="card-rizk p-3 hover-lift">
                     @php
-                        $imageUrl = asset('storage/products/product_1.png');
+                        $imageUrl = asset('images/product-placeholder.svg');
                         if ($service->images) {
                             $images = json_decode($service->images, true);
                             if (is_array($images) && count($images) > 0 && $images[0]) {
@@ -73,7 +73,7 @@
                     <img src="{{ $imageUrl }}" 
                          alt="{{ $service->service_name }}"
                          style="width: 100%; height: 150px; object-fit: cover; border-radius: 8px; margin-bottom: 10px;"
-                         onerror="this.src='{{ asset('storage/products/product_1.png') }}'">
+                         onerror="this.onerror=null; this.style.display='none';">
                     
                     <h6 style="color: var(--text-primary);">{{ $service->service_name }}</h6>
                     <p class="small text-muted">{{ Str::limit($service->description, 50) }}</p>

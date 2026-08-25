@@ -3,7 +3,7 @@
 @section('title', 'إنشاء حساب جديد')
 
 @section('content')
-<div class="container py-4">
+<div class="auth-page container py-4">
     <div class="row justify-content-center">
         <div class="col-md-8">
             <div class="card-rizk p-4">

@@ -2,7 +2,7 @@
 
 @section('content')
 <div class="container py-4">
-    <h2 class="mb-4">جميع الخدمات</h2>
+    <h1 class="section-title-rizk text-center mb-4">جميع الخدمات</h2>
     
     @if($services->count() > 0)
         <div class="row">
@@ -22,9 +22,11 @@
         </div>
         {{ $services->links() }}
     @else
-        <div class="alert alert-info">
-            لا يوجد خدمات حالياً. سجل كـ مقدم خدمات لتظهر هنا.
-        </div>
+            <div class="col-12 text-center py-5">
+                <i class="fas fa-tag fa-3x gold-text mb-3"></i>
+                <h5 style="color: var(--text-primary);">لا توجد خدمات حالياً</h5>
+                <p style="color: var(--text-muted);">ترقبوا الخدمات القادمة!</p>
+            </div>
     @endif
 </div>
 @endsection

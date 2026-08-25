@@ -3,7 +3,7 @@
 @section('title', 'إعادة تعيين كلمة المرور')
 
 @section('content')
-<div class="container py-5">
+<div class="auth-page container py-5">
     <div class="row justify-content-center">
         <div class="col-md-6">
             <div class="card shadow-sm border-0" style="border-radius: 15px;">

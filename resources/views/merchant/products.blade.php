@@ -15,7 +15,7 @@
                 <div class="card-rizk hover-lift">
                     <div class="product-img-wrapper" style="height: 150px; overflow: hidden;">
                         @php
-                            $imageUrl = asset('storage/products/product_1.png');
+                            $imageUrl = asset('images/product-placeholder.svg');
                             if ($product->images) {
                                 $images = json_decode($product->images, true);
                                 if (is_array($images) && count($images) > 0) {
@@ -30,7 +30,7 @@
                         <img src="{{ $imageUrl }}" 
                              alt="{{ $product->name }}"
                              style="width: 100%; height: 100%; object-fit: cover;"
-                             onerror="this.src='{{ asset('storage/products/product_1.png') }}'">
+                             onerror="this.onerror=null; this.style.display='none';">
                     </div>
                     <div class="card-body">
                         <h6 style="color: var(--text-primary);">{{ $product->name }}</h6>

@@ -3,7 +3,7 @@
 @section('title', 'تسجيل الدخول')
 
 @section('content')
-<div class="container py-4">
+<div class="auth-page container py-4">
     <div class="row justify-content-center">
         <div class="col-md-6">
             <div class="modern-card p-4">

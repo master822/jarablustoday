@@ -208,6 +208,137 @@ img, video, iframe {
         a { color: var(--primary-color); text-decoration: none; transition: color 0.3s ease; }
         a:hover { color: var(--primary-dark); }
         
+
+/* ============================================================
+   STABLE NAVBAR
+   ============================================================ */
+
+
+/* JURABLUS TODAY SITE NAME */
+.site-name-jurablus {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    direction: rtl;
+    font-size: 1.4rem;
+    font-weight: 800;
+    line-height: 1;
+    white-space: nowrap;
+    letter-spacing: -0.5px;
+}
+
+.site-name-jurablus-word {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 7px 11px;
+    border-radius: 10px;
+
+    /* Gold site color */
+    background: linear-gradient(
+        135deg,
+        #d4af37,
+        #f1d477
+    );
+
+    /* Dark text for strong contrast */
+    color: #1a1a2e !important;
+
+    -webkit-text-fill-color: #1a1a2e !important;
+
+    box-shadow:
+        0 3px 10px rgba(212, 175, 55, 0.25);
+}
+
+.site-name-today-word {
+    display: inline-block;
+
+    /* Different color from جرابلس */
+    background: linear-gradient(
+        135deg,
+        var(--primary-color),
+        var(--primary-light)
+    );
+
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+
+    color: var(--primary-color);
+}
+
+/* Dark mode */
+[data-theme="dark"] .site-name-jurablus-word {
+    background: linear-gradient(
+        135deg,
+        #d4af37,
+        #f5d978
+    );
+
+    color: #111827 !important;
+    -webkit-text-fill-color: #111827 !important;
+
+    box-shadow:
+        0 3px 12px rgba(212, 175, 55, 0.35);
+}
+
+[data-theme="dark"] .site-name-today-word {
+    background: linear-gradient(
+        135deg,
+        #818cf8,
+        #c4b5fd
+    );
+
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+@media (max-width: 768px) {
+    .site-name-jurablus {
+        font-size: 1.15rem;
+        gap: 5px;
+    }
+
+    .site-name-jurablus-word {
+        padding: 6px 9px;
+        border-radius: 8px;
+    }
+}
+
+.navbar-rizk {
+    position: fixed !important;
+    top: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    z-index: 1030;
+    min-height: 64px;
+    background: var(--bg-navbar) !important;
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+}
+
+.navbar-rizk .container {
+    display: flex;
+    align-items: center;
+    min-height: 64px;
+}
+
+.navbar-rizk .navbar-collapse {
+    align-items: center;
+}
+
+.navbar-rizk .navbar-toggler {
+    padding: 6px 9px;
+    border-radius: 10px;
+}
+
+.navbar-rizk .navbar-toggler:focus {
+    box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.25);
+}
+
+
         .navbar-rizk {
             background: var(--bg-navbar) !important;
             backdrop-filter: blur(20px);
@@ -340,70 +471,90 @@ img, video, iframe {
             border-top: 3px solid var(--primary-color);
         }
         
-        .section-title-rizk {
-            position: relative;
-            padding-bottom: 14px;
-            margin-bottom: 30px;
-            font-weight: 800;
-        }
-        
-        .section-title-rizk::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            right: 0;
-            width: 70px;
-            height: 4px;
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-            border-radius: 4px;
-        }
+.section-title-rizk {
+    position: relative;
+    padding-bottom: 14px;
+    margin-bottom: 30px;
+    font-weight: 800;
+    text-align: center;
+}
+
+.section-title-rizk::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 250px;
+    height: 4px;
+    background: linear-gradient(
+        90deg,
+        var(--primary-color),
+        var(--secondary-color)
+    );
+    border-radius: 999px;
+}
         
         .gold-text { color: var(--primary-color); }
         
-        .brightness-container {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 6px 14px;
-            background: var(--bg-card);
-            border-radius: 30px;
-            box-shadow: var(--shadow-sm);
-            border: 2px solid rgba(212, 175, 55, 0.15);
-            min-width: 200px;
-            transition: all 0.3s ease;
-        }
         
-        .brightness-slider {
-            -webkit-appearance: none;
-            appearance: none;
-            width: 120px;
-            height: 6px;
-            border-radius: 10px;
-            background: linear-gradient(to right, #fbbf24, #f59e0b, #818cf8, #1e293b);
-            outline: none;
-            cursor: pointer;
-        }
-        
-        .brightness-slider::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            appearance: none;
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
-            cursor: pointer;
-            box-shadow: 0 2px 10px rgba(212, 175, 55, 0.4);
-            border: 2px solid white;
-        }
-        
-        .brightness-value {
-            font-size: 0.75rem;
-            font-weight: 700;
-            color: var(--text-primary);
-            min-width: 38px;
-            text-align: center;
-        }
-        
+/* ============================================================
+   RIZK THEME TOGGLE - NORMAL BUTTON
+   ============================================================ */
+
+.theme-toggle {
+    width: 48px;
+    height: 48px;
+    padding: 0;
+    border: 1px solid rgba(212, 175, 55, 0.25);
+    border-radius: 12px;
+    background: var(--bg-card);
+    color: var(--text-primary);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: var(--shadow-sm);
+    transition: background-color .25s ease,
+                color .25s ease,
+                border-color .25s ease,
+                transform .2s ease,
+                box-shadow .25s ease;
+}
+
+.theme-toggle:hover {
+    transform: translateY(-1px);
+    border-color: var(--primary-color);
+    box-shadow: var(--shadow-md);
+}
+
+.theme-toggle:active {
+    transform: translateY(0);
+}
+
+.theme-toggle i {
+    font-size: 1.05rem;
+    transition: transform .25s ease;
+}
+
+.theme-toggle:hover i {
+    transform: rotate(15deg);
+}
+
+[data-theme="dark"] .theme-toggle {
+    background: #1e293b;
+    color: #f0d060;
+    border-color: rgba(240, 208, 96, 0.25);
+}
+
+@media (max-width: 768px) {
+    .theme-toggle {
+        width: 42px;
+        height: 42px;
+        border-radius: 10px;
+    }
+}
+
         .pagination-simple {
             display: flex;
             justify-content: center;
@@ -457,10 +608,7 @@ img, video, iframe {
 @media (max-width: 992px) {
     body { padding-top: 72px; font-size: 14px; }
     .navbar-rizk .navbar-brand { font-size: 1.3rem; }
-    .navbar-rizk .brand-icon { width: 36px; height: 36px; font-size: 1rem; }
-    .brightness-slider { width: 80px; }
-    .brightness-container { min-width: 160px; }
-    .product-card .product-title { font-size: 0.9rem; }
+    .navbar-rizk .brand-icon { width: 36px; height: 36px; font-size: 1rem; }.product-card .product-title { font-size: 0.9rem; }
     .product-card .product-price { font-size: 1rem; }
 }
 
@@ -474,14 +622,7 @@ img, video, iframe {
     .btn-rizk { padding: 8px 16px; font-size: 0.85rem; }
     .card-rizk .card-body { padding: 14px; }
     .section-title-rizk { font-size: 1.2rem; }
-    .footer-rizk { padding: 30px 0 15px; }
-    .brightness-slider { width: 60px; }
-    .brightness-container { min-width: 140px; padding: 4px 10px; }
-    .brightness-value { font-size: 0.7rem; min-width: 30px; }
-    .brightness-container .icon-wrapper { width: 24px; height: 24px; }
-    .brightness-container .mode-icon { font-size: 0.9rem; }
-    
-    /* تحسين عرض المنتجات */
+    .footer-rizk { padding: 30px 0 15px; }/* تحسين عرض المنتجات */
     .product-grid .col-lg-3 { flex: 0 0 50%; max-width: 50%; }
     .product-card .product-description { font-size: 0.75rem; }
     .pagination-simple .page-btn { padding: 8px 16px; min-width: 80px; font-size: 0.8rem; }
@@ -489,12 +630,7 @@ img, video, iframe {
 
 @media (max-width: 576px) {
     body { padding-top: 56px; font-size: 12px; }
-    .container { padding-left: 10px; padding-right: 10px; }
-    .brightness-slider { width: 50px; }
-    .brightness-container { min-width: 120px; padding: 3px 6px; gap: 6px; }
-    .brightness-value { font-size: 0.65rem; min-width: 26px; }
-    
-    /* تحسين عرض المنتجات في الشاشات الصغيرة */
+    .container { padding-left: 10px; padding-right: 10px; }/* تحسين عرض المنتجات في الشاشات الصغيرة */
     .product-grid .col-6 { flex: 0 0 50%; max-width: 50%; }
     .product-card .product-title { font-size: 0.8rem; }
     .product-card .product-price { font-size: 0.9rem; }
@@ -504,7 +640,748 @@ img, video, iframe {
     .pagination-simple .page-btn { padding: 6px 12px; min-width: 60px; font-size: 0.7rem; gap: 4px; }
     .pagination-simple .page-info { font-size: 0.7rem; }
 }
-    </style>
+    
+/* ===== FIX NAVBAR ITEM POSITION ===== */
+.navbar-rizk .navbar-collapse {
+    flex-grow: 1;
+}
+
+.navbar-rizk .navbar-nav {
+    align-items: center;
+}
+
+.navbar-rizk .navbar-nav.me-auto {
+    margin-right: 0 !important;
+    margin-left: auto !important;
+    gap: 2px;
+}
+
+.navbar-rizk .navbar-nav.ms-auto {
+    margin-right: auto !important;
+    margin-left: 0 !important;
+    flex-shrink: 0;
+}
+
+.navbar-rizk .nav-item {
+    flex-shrink: 0;
+}
+
+.navbar-rizk .nav-link {
+    white-space: nowrap;
+}
+
+@media (max-width: 1199.98px) {
+    .navbar-rizk .nav-link {
+        padding: 7px 9px;
+        font-size: 0.82rem;
+    }
+}
+
+@media (max-width: 991.98px) {
+    .navbar-rizk .navbar-collapse {
+        padding: 12px 0;
+    }
+
+    .navbar-rizk .navbar-nav.me-auto {
+        margin: 0 !important;
+        align-items: stretch;
+    }
+
+    .navbar-rizk .navbar-nav.ms-auto {
+        margin: 10px 0 0 !important;
+        align-items: center;
+    }
+
+    .navbar-rizk .nav-link {
+        padding: 9px 12px;
+    }
+}
+
+    
+/* ===== COMPACT RIZK NAVBAR ===== */
+
+.navbar-rizk {
+    padding: 7px 0 !important;
+}
+
+.navbar-rizk .container {
+    min-height: 58px;
+}
+
+.navbar-rizk .navbar-brand {
+    font-size: 1.35rem;
+    gap: 8px;
+}
+
+.navbar-rizk .brand-icon {
+    width: 38px;
+    height: 38px;
+    font-size: 1rem;
+}
+
+.navbar-rizk .nav-link {
+    padding: 6px 10px;
+    font-size: 0.88rem;
+}
+
+.navbar-rizk .navbar-nav.me-auto {
+    gap: 0;
+}
+
+.navbar-rizk .dropdown-menu {
+    min-width: 210px;
+    margin-top: 6px;
+}
+
+.navbar-rizk .dropdown-item {
+    padding: 9px 12px;
+    font-size: 0.88rem;
+}
+
+@media (max-width: 1199.98px) {
+    .navbar-rizk .nav-link {
+        padding: 6px 7px;
+        font-size: 0.8rem;
+    }
+}
+
+@media (max-width: 991.98px) {
+    .navbar-rizk {
+        padding: 5px 0 !important;
+    }
+
+    .navbar-rizk .container {
+        min-height: 52px;
+    }
+
+    .navbar-rizk .navbar-nav.me-auto {
+        gap: 2px;
+    }
+
+    .navbar-rizk .nav-link {
+        padding: 8px 12px;
+        font-size: 0.85rem;
+    }
+}
+
+    
+/* ============================================================
+   FINAL NAVBAR LAYOUT
+   ============================================================ */
+
+.navbar-rizk {
+    padding: 6px 0 !important;
+}
+
+.navbar-rizk .container {
+    min-height: 58px;
+    display: flex;
+    align-items: center;
+}
+
+.navbar-rizk .navbar-collapse {
+    align-items: center;
+}
+
+.navbar-rizk .navbar-nav.me-auto {
+    margin-right: 0 !important;
+    margin-left: auto !important;
+    align-items: center;
+    gap: 0;
+}
+
+.navbar-rizk .navbar-nav.ms-auto {
+    margin-right: auto !important;
+    margin-left: 0 !important;
+    align-items: center;
+}
+
+.navbar-rizk .nav-item {
+    flex-shrink: 0;
+}
+
+.navbar-rizk .nav-link {
+    padding: 6px 9px;
+    font-size: 0.86rem;
+    white-space: nowrap;
+}
+
+.navbar-rizk .dropdown-menu {
+    min-width: 210px;
+    margin-top: 6px;
+}
+
+.navbar-rizk .dropdown-item {
+    padding: 9px 12px;
+    font-size: 0.86rem;
+    white-space: nowrap;
+}
+
+@media (max-width: 1199px) {
+    .navbar-rizk .nav-link {
+        padding: 5px 6px;
+        font-size: 0.78rem;
+    }
+}
+
+@media (max-width: 991px) {
+    .navbar-rizk .navbar-collapse {
+        padding: 10px 0;
+    }
+
+    .navbar-rizk .navbar-nav.me-auto,
+    .navbar-rizk .navbar-nav.ms-auto {
+        margin: 0 !important;
+        align-items: stretch;
+    }
+
+    .navbar-rizk .nav-link {
+        padding: 8px 12px;
+        font-size: 0.85rem;
+    }
+}
+
+
+
+/* =========================================================
+   AUTH PAGES - LOGIN / REGISTER / PASSWORD
+   ========================================================= */
+
+
+/* FORCE DARK MODE AUTH TEXT VISIBILITY */
+[data-theme="dark"] .auth-page h1,
+[data-theme="dark"] .auth-page h2,
+[data-theme="dark"] .auth-page h3,
+[data-theme="dark"] .auth-page h4,
+[data-theme="dark"] .auth-page h5,
+[data-theme="dark"] .auth-page h6,
+[data-theme="dark"] .auth-page label,
+[data-theme="dark"] .auth-page .form-label,
+[data-theme="dark"] .auth-page p,
+[data-theme="dark"] .auth-page span:not(.badge),
+[data-theme="dark"] .auth-page .form-check-label {
+    color: #f8fafc !important;
+}
+
+[data-theme="dark"] .auth-page input,
+[data-theme="dark"] .auth-page textarea,
+[data-theme="dark"] .auth-page select,
+[data-theme="dark"] .auth-page .form-control,
+[data-theme="dark"] .auth-page .form-select {
+    color: #f8fafc !important;
+    background-color: #1e293b !important;
+    border-color: #475569 !important;
+}
+
+[data-theme="dark"] .auth-page input:focus,
+[data-theme="dark"] .auth-page textarea:focus,
+[data-theme="dark"] .auth-page select:focus,
+[data-theme="dark"] .auth-page .form-control:focus,
+[data-theme="dark"] .auth-page .form-select:focus {
+    color: #ffffff !important;
+    background-color: #1e293b !important;
+    border-color: var(--primary-color) !important;
+    box-shadow: 0 0 0 0.2rem rgba(212, 175, 55, 0.20) !important;
+}
+
+[data-theme="dark"] .auth-page input::placeholder,
+[data-theme="dark"] .auth-page textarea::placeholder {
+    color: #94a3b8 !important;
+    opacity: 1 !important;
+}
+
+[data-theme="dark"] .auth-page .text-muted {
+    color: #cbd5e1 !important;
+}
+
+[data-theme="dark"] .auth-page a {
+    color: #60a5fa !important;
+}
+
+[data-theme="dark"] .auth-page a:hover {
+    color: #93c5fd !important;
+}
+
+.auth-page {
+    min-height: calc(100vh - 80px);
+    padding: 40px 15px 60px;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+}
+
+.auth-page .container,
+.auth-page .row {
+    width: 100%;
+}
+
+.auth-page .card,
+.auth-page .auth-card {
+    background: var(--bg-card) !important;
+    color: var(--text-primary) !important;
+    border-color: rgba(212, 175, 55, 0.20) !important;
+}
+
+.auth-page h1,
+.auth-page h2,
+.auth-page h3,
+.auth-page h4,
+.auth-page h5,
+.auth-page h6,
+.auth-page label,
+.auth-page p,
+.auth-page span {
+    color: var(--text-primary);
+}
+
+.auth-page .text-muted {
+    color: var(--text-secondary) !important;
+}
+
+.auth-page input,
+.auth-page textarea,
+.auth-page select,
+.auth-page .form-control,
+.auth-page .form-select {
+    background-color: var(--bg-card) !important;
+    color: var(--text-primary) !important;
+    border: 1px solid rgba(148, 163, 184, 0.35) !important;
+}
+
+.auth-page input::placeholder,
+.auth-page textarea::placeholder {
+    color: var(--text-muted) !important;
+    opacity: 1;
+}
+
+.auth-page input:focus,
+.auth-page textarea:focus,
+.auth-page select:focus,
+.auth-page .form-control:focus,
+.auth-page .form-select:focus {
+    background-color: var(--bg-card) !important;
+    color: var(--text-primary) !important;
+    border-color: var(--primary-color) !important;
+    box-shadow: 0 0 0 0.2rem rgba(212, 175, 55, 0.15) !important;
+}
+
+.auth-page .form-check-label {
+    color: var(--text-secondary) !important;
+}
+
+.auth-page a {
+    color: var(--primary-color) !important;
+}
+
+.auth-page a:hover {
+    color: var(--primary-light) !important;
+}
+
+/* Dark mode */
+[data-theme="dark"] .auth-page input,
+[data-theme="dark"] .auth-page textarea,
+[data-theme="dark"] .auth-page select,
+[data-theme="dark"] .auth-page .form-control,
+[data-theme="dark"] .auth-page .form-select {
+    background-color: #1e293b !important;
+    color: #f1f5f9 !important;
+    border-color: #475569 !important;
+}
+
+[data-theme="dark"] .auth-page input::placeholder,
+[data-theme="dark"] .auth-page textarea::placeholder {
+    color: #94a3b8 !important;
+}
+
+[data-theme="dark"] .auth-page .card,
+[data-theme="dark"] .auth-page .auth-card {
+    background-color: #1e293b !important;
+    color: #f1f5f9 !important;
+}
+
+/* Never allow auth content to hide behind fixed navbar */
+@media (min-width: 769px) {
+    .auth-page {
+        padding-top: 35px;
+    }
+}
+
+@media (max-width: 768px) {
+    .auth-page {
+        min-height: calc(100vh - 64px);
+        padding: 25px 12px 40px;
+    }
+}
+
+@media (max-width: 576px) {
+    .auth-page {
+        min-height: calc(100vh - 56px);
+        padding: 20px 10px 35px;
+    }
+}
+
+
+
+/* Auth pages must not inherit global brightness filter */
+body.auth-layout {
+    filter: none !important;
+}
+
+
+
+/* =========================================================
+   FINAL AUTH PAGE FIX
+   ========================================================= */
+
+.auth-page {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 100%;
+    min-height: calc(100vh - 80px);
+    margin: 0 auto;
+    padding: 35px 15px 60px !important;
+    color: var(--text-primary) !important;
+}
+
+.auth-page > .row {
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.auth-page .modern-card,
+.auth-page .card-rizk,
+.auth-page .card {
+    background-color: var(--bg-card) !important;
+    color: var(--text-primary) !important;
+    border-color: rgba(212, 175, 55, 0.20) !important;
+}
+
+.auth-page h1,
+.auth-page h2,
+.auth-page h3,
+.auth-page h4,
+.auth-page h5,
+.auth-page h6,
+.auth-page p,
+.auth-page label,
+.auth-page strong,
+.auth-page span {
+    color: var(--text-primary);
+}
+
+.auth-page .text-muted,
+.auth-page small {
+    color: var(--text-secondary) !important;
+}
+
+/* Inputs - Light + Dark */
+.auth-page input:not([type="checkbox"]):not([type="radio"]),
+.auth-page textarea,
+.auth-page select,
+.auth-page .form-control,
+.auth-page .form-select {
+    background-color: var(--bg-card) !important;
+    color: var(--text-primary) !important;
+    border: 1px solid rgba(148, 163, 184, 0.40) !important;
+    opacity: 1 !important;
+}
+
+.auth-page input:not([type="checkbox"]):not([type="radio"])::placeholder,
+.auth-page textarea::placeholder {
+    color: var(--text-muted) !important;
+    opacity: 1 !important;
+}
+
+.auth-page input:focus,
+.auth-page textarea:focus,
+.auth-page select:focus,
+.auth-page .form-control:focus,
+.auth-page .form-select:focus {
+    background-color: var(--bg-card) !important;
+    color: var(--text-primary) !important;
+    border-color: var(--primary-color) !important;
+    box-shadow: 0 0 0 0.2rem rgba(212, 175, 55, 0.15) !important;
+}
+
+/* Bootstrap autofill */
+.auth-page input:-webkit-autofill,
+.auth-page input:-webkit-autofill:hover,
+.auth-page input:-webkit-autofill:focus,
+.auth-page textarea:-webkit-autofill,
+.auth-page select:-webkit-autofill {
+    -webkit-text-fill-color: var(--text-primary) !important;
+    box-shadow: 0 0 0 1000px var(--bg-card) inset !important;
+    transition: background-color 9999s ease-in-out 0s;
+}
+
+/* Checkboxes */
+.auth-page .form-check-input {
+    background-color: var(--bg-card) !important;
+    border-color: var(--text-muted) !important;
+}
+
+.auth-page .form-check-input:checked {
+    background-color: var(--primary-color) !important;
+    border-color: var(--primary-color) !important;
+}
+
+.auth-page .form-check-label {
+    color: var(--text-secondary) !important;
+}
+
+/* Links */
+.auth-page a:not(.btn) {
+    color: var(--primary-color) !important;
+}
+
+.auth-page a:not(.btn):hover {
+    color: var(--primary-light) !important;
+}
+
+/* Alerts */
+.auth-page .alert {
+    color: var(--text-primary) !important;
+}
+
+.auth-page .alert-danger {
+    color: #fca5a5 !important;
+}
+
+.auth-page .alert-success {
+    color: #86efac !important;
+}
+
+/* =========================================================
+   DARK MODE
+   ========================================================= */
+
+[data-theme="dark"] .auth-page {
+    color: #f1f5f9 !important;
+}
+
+[data-theme="dark"] .auth-page .modern-card,
+[data-theme="dark"] .auth-page .card-rizk,
+[data-theme="dark"] .auth-page .card {
+    background: #1e293b !important;
+    color: #f1f5f9 !important;
+}
+
+[data-theme="dark"] .auth-page h1,
+[data-theme="dark"] .auth-page h2,
+[data-theme="dark"] .auth-page h3,
+[data-theme="dark"] .auth-page h4,
+[data-theme="dark"] .auth-page h5,
+[data-theme="dark"] .auth-page h6,
+[data-theme="dark"] .auth-page p,
+[data-theme="dark"] .auth-page label,
+[data-theme="dark"] .auth-page strong,
+[data-theme="dark"] .auth-page span {
+    color: #f1f5f9;
+}
+
+[data-theme="dark"] .auth-page .text-muted,
+[data-theme="dark"] .auth-page small {
+    color: #cbd5e1 !important;
+}
+
+[data-theme="dark"] .auth-page input:not([type="checkbox"]):not([type="radio"]),
+[data-theme="dark"] .auth-page textarea,
+[data-theme="dark"] .auth-page select,
+[data-theme="dark"] .auth-page .form-control,
+[data-theme="dark"] .auth-page .form-select {
+    background: #0f172a !important;
+    color: #f8fafc !important;
+    border-color: #475569 !important;
+}
+
+[data-theme="dark"] .auth-page input:not([type="checkbox"]):not([type="radio"])::placeholder,
+[data-theme="dark"] .auth-page textarea::placeholder {
+    color: #94a3b8 !important;
+}
+
+[data-theme="dark"] .auth-page input:focus,
+[data-theme="dark"] .auth-page textarea:focus,
+[data-theme="dark"] .auth-page select:focus,
+[data-theme="dark"] .auth-page .form-control:focus,
+[data-theme="dark"] .auth-page .form-select:focus {
+    background: #0f172a !important;
+    color: #f8fafc !important;
+    border-color: #f0d060 !important;
+}
+
+/* Prevent fixed navbar from covering auth content */
+@media (min-width: 769px) {
+    .auth-page {
+        padding-top: 35px !important;
+    }
+}
+
+@media (max-width: 768px) {
+    .auth-page {
+        min-height: calc(100vh - 64px);
+        padding: 25px 12px 45px !important;
+    }
+}
+
+@media (max-width: 576px) {
+    .auth-page {
+        min-height: calc(100vh - 56px);
+        padding: 20px 10px 35px !important;
+    }
+}
+
+
+/* ============================================================
+   RESPONSIVE NOTIFICATIONS / MESSAGES DROPDOWNS
+   ============================================================ */
+
+/*
+ * Desktop
+ *
+ * لا نستخدم position: fixed هنا.
+ * Bootstrap يضع القائمة بالنسبة إلى عنصر الـdropdown
+ * وبالتالي تبقى مرتبطة بالأيقونة نفسها.
+ */
+.navbar-rizk .rizk-fixed-dropdown {
+    position: absolute !important;
+
+    z-index: 2000 !important;
+
+    width: 350px !important;
+    min-width: 350px !important;
+    max-width: min(350px, calc(100vw - 24px)) !important;
+
+    max-height: calc(100vh - 90px) !important;
+
+    margin-top: 6px !important;
+
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+
+    box-sizing: border-box !important;
+}
+
+/*
+ * الإشعارات والرسائل:
+ * dropdown-menu-end يجعل الحافة اليمنى للقائمة
+ * مرتبطة بعنصر الـdropdown نفسه.
+ */
+.navbar-rizk .rizk-notifications-dropdown,
+.navbar-rizk .rizk-messages-dropdown {
+    inset-inline-end: 0 !important;
+    inset-inline-start: auto !important;
+
+    top: 100% !important;
+    bottom: auto !important;
+}
+
+/* محتوى الإشعارات لا يسمح للنص بتوسيع القائمة */
+.navbar-rizk .rizk-notifications-dropdown .dropdown-item {
+    width: 100%;
+    max-width: 100%;
+
+    white-space: normal !important;
+
+    overflow-wrap: anywhere;
+    word-break: break-word;
+
+    box-sizing: border-box;
+}
+
+.navbar-rizk .rizk-notifications-dropdown .dropdown-item > div {
+    min-width: 0;
+    max-width: 100%;
+}
+
+.navbar-rizk .rizk-notifications-dropdown strong,
+.navbar-rizk .rizk-notifications-dropdown p,
+.navbar-rizk .rizk-notifications-dropdown small {
+    overflow-wrap: anywhere;
+    word-break: break-word;
+}
+
+/* ============================================================
+   TABLETS
+   ============================================================ */
+
+@media (max-width: 991.98px) {
+
+    .navbar-rizk .rizk-fixed-dropdown {
+        width: min(340px, calc(100vw - 20px)) !important;
+        min-width: 0 !important;
+
+        max-width: calc(100vw - 20px) !important;
+
+        max-height: calc(100vh - 80px) !important;
+    }
+}
+
+/* ============================================================
+   PHONES
+   ============================================================ */
+
+@media (max-width: 576px) {
+
+    .navbar-rizk .rizk-fixed-dropdown {
+        /*
+         * على الهاتف نريد القائمة مرتبطة بالـnavbar
+         * ولكن لا تتجاوز حدود الشاشة.
+         */
+        position: fixed !important;
+
+        top: 58px !important;
+
+        width: calc(100vw - 16px) !important;
+        min-width: 0 !important;
+        max-width: calc(100vw - 16px) !important;
+
+        margin: 0 !important;
+
+        max-height: calc(100vh - 70px) !important;
+
+        border-radius: 12px !important;
+
+        overflow-y: auto !important;
+    }
+
+    /*
+     * RTL:
+     * القائمة تتمركز داخل الشاشة على الهاتف.
+     */
+    .navbar-rizk .rizk-notifications-dropdown,
+    .navbar-rizk .rizk-messages-dropdown {
+        left: 8px !important;
+        right: 8px !important;
+
+        width: auto !important;
+        max-width: none !important;
+    }
+}
+
+/* ============================================================
+   VERY SMALL PHONES
+   ============================================================ */
+
+@media (max-width: 360px) {
+
+    .navbar-rizk .rizk-fixed-dropdown {
+        left: 6px !important;
+        right: 6px !important;
+
+        width: auto !important;
+
+        max-height: calc(100vh - 66px) !important;
+
+        font-size: 0.9rem;
+    }
+
+    .navbar-rizk .rizk-notifications-dropdown .dropdown-item {
+        padding: 9px 10px !important;
+    }
+}
+
+</style>
 
 <script>
     // إغلاق القائمة الجانبية تلقائياً عند النقر خارجها
@@ -524,19 +1401,22 @@ img, video, iframe {
     });
 </script>
 </head>
-<body>
+<body class="{{ request()->routeIs('login', 'register', 'password.*') ? 'auth-layout' : '' }}">
     <!-- النافبار -->
     <nav class="navbar navbar-expand-lg navbar-rizk fixed-top">
         <div class="container">
             <a class="navbar-brand" href="{{ url('/') }}">
     @if(session('site_logo'))
         <img src="{{ asset('storage/' . session('site_logo')) }}" 
-             alt="Rizk" 
+             alt="جرابلس اليوم" 
              style="height: 45px; width: auto; max-width: 150px; object-fit: contain;">
     @else
         <!-- <div class="brand-icon"><i class="fas fa-gem"></i></div> -->
         <div>
-            <span style="background: linear-gradient(135deg, var(--primary-color), var(--primary-dark), var(--primary-light)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">Rizk</span>
+            <span class="site-name-jurablus">
+    <span class="site-name-jurablus-word">جرابلس</span>
+    <span class="site-name-today-word">اليوم</span>
+</span>
            <!-- <span style="font-size: 0.65rem; font-weight: 400; color: var(--text-muted); display: block; margin-top: -4px;">رزق</span> -->
         </div>
     @endif
@@ -547,25 +1427,128 @@ img, video, iframe {
             </button>
             
             <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav me-auto">
-                    <li class="nav-item"><a class="nav-link" href="{{ url('/') }}">الرئيسية</a></li>
-                    <li class="nav-item"><a class="nav-link" href="{{ url('/products') }}">المنتجات</a></li>
-                    <li class="nav-item"><a class="nav-link" href="{{ url('/merchants') }}">المتاجر</a></li>
-                    <li class="nav-item"><a class="nav-link" href="{{ url('/discounts') }}">التخفيضات</a></li>
-                    <li class="nav-item"><a class="nav-link" href="{{ url('/used-products') }}"> المستعمل</a></li>
-                    <li class="nav-item"><a class="nav-link" href="{{ url('/services') }}">خدمات</a></li>
-                    <li class="nav-item"><a class="nav-link" href="{{ url('/jobs') }}">فرص العمل</a></li>
+                <ul class="navbar-nav me-auto align-items-lg-center">
+
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url('/products') }}">المنتجات</a>
+                    </li>
+
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url('/discounts') }}">التخفيضات</a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url('/used-products') }}">المستعمل</a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url('/services') }}">خدمات</a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url('/jobs') }}">فرص العمل</a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url('/news') }}">آخر الأخبار</a>
+                    </li>
+
+                    <!-- عقارات -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle"
+                           href="#"
+                           id="propertiesDropdown"
+                           role="button"
+                           data-bs-toggle="dropdown"
+                           aria-expanded="false">
+                            عقارات
+                        </a>
+
+                        <ul class="dropdown-menu dropdown-menu-end"
+                            aria-labelledby="propertiesDropdown">
+
+                            <li>
+                                <a class="dropdown-item"
+                                   href="{{ url('/properties/sale') }}">
+                                    <i class="fas fa-house me-2"></i>
+                                    عقارات للبيع
+                                </a>
+                            </li>
+
+                            <li>
+                                <a class="dropdown-item"
+                                   href="{{ url('/properties/rent') }}">
+                                    <i class="fas fa-key me-2"></i>
+                                    عقارات للإيجار
+                                </a>
+                            </li>
+
+                        </ul>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url('/announcements') }}">الإعلانات</a>
+                    </li>
+
+@auth
+
+<li class="nav-item dropdown">
+    <a class="nav-link dropdown-toggle"
+       href="#"
+       id="createDropdown"
+       role="button"
+       data-bs-toggle="dropdown"
+       aria-expanded="false">
+        <i class="fas fa-plus-circle me-1"></i>
+        إنشاء
+    </a>
+
+    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="createDropdown">
+
+        <li>
+            <a class="dropdown-item" href="{{ route('news.create') }}">
+                <i class="fas fa-newspaper me-2"></i>
+                إضافة خبر
+            </a>
+        </li>
+
+        <li>
+            <a class="dropdown-item" href="{{ route('announcements.create') }}">
+                <i class="fas fa-bullhorn me-2"></i>
+                إضافة إعلان
+            </a>
+        </li>
+
+        <li>
+            <a class="dropdown-item" href="{{ route('properties.create') }}">
+                <i class="fas fa-house me-2"></i>
+                إضافة عقار
+            </a>
+        </li>
+
+    </ul>
+</li>
+
+@endauth
+
                 </ul>
                 
                 <ul class="navbar-nav ms-auto align-items-center gap-2">
-                    <!-- شريط السطوع -->
+
+                    <!-- الوضع الليلي / النهاري -->
                     <li class="nav-item">
-                        <div class="brightness-container">
-                            <i class="fas fa-sun" style="color: #fbbf24;"></i>
-                            <input type="range" min="0" max="100" value="50" class="brightness-slider" id="brightnessSlider">
-                            <span class="brightness-value" id="brightnessValue">50%</span>
-                        </div>
+                        <button
+                            type="button"
+                            id="themeToggle"
+                            class="theme-toggle"
+                            aria-label="تبديل الوضع الليلي والنهاري"
+                            title="تبديل الوضع الليلي والنهاري">
+                            <i id="themeToggleIcon" class="fas fa-moon"></i>
+                        </button>
                     </li>
+
                     
                     <!-- بحث -->
                     <li class="nav-item dropdown">
@@ -637,7 +1620,9 @@ img, video, iframe {
                                     </span>
                                 @endif
                             </a>
-                            <ul class="dropdown-menu dropdown-menu-end" style="min-width: 350px; max-height: 400px; overflow-y: auto;">
+                            <ul id="notificationsDropdownMenu"
+    class="dropdown-menu dropdown-menu-end rizk-fixed-dropdown rizk-notifications-dropdown"
+    style="min-width: 350px; max-height: 400px; overflow-y: auto;">
                                 <li class="dropdown-header d-flex justify-content-between align-items-center">
                                     <span>الإشعارات</span>
                                     @if($unreadNotifications > 0)
@@ -688,7 +1673,8 @@ img, video, iframe {
                                     </span>
                                 @endif
                             </a>
-                            <ul class="dropdown-menu dropdown-menu-end">
+                            <ul id="messagesDropdownMenu"
+    class="dropdown-menu dropdown-menu-end rizk-fixed-dropdown rizk-messages-dropdown">
                                 <li><a class="dropdown-item" href="{{ route('messages.inbox') }}">
                                     <i class="fas fa-inbox me-2"></i>الوارد 
                                     @if($unreadMessages > 0)
@@ -785,7 +1771,8 @@ img, video, iframe {
                 </ul>
             </div>
         </div>
-    </nav>
+    
+</nav>
     
     <!-- رسائل التنبيه -->
     <div class="container mt-2">
@@ -813,10 +1800,10 @@ img, video, iframe {
                 <div class="col-lg-4">
     @if(session('site_logo'))
         <img src="{{ asset('storage/' . session('site_logo')) }}" 
-             alt="Rizk" 
+             alt="جرابلس اليوم" 
              style="height: 55px; width: auto; max-width: 180px; object-fit: contain; margin-bottom: 10px;">
     @else
-        <h5 style="color: #fff;">Rizk</h5>
+        <h5 style="color: #fff;">جرابلس اليوم</h5>
     @endif
     <p class="small">منصة شاملة لبيع وشراء المنتجات الجديدة والمستعملة مع أفضل العروض والتخفيضات</p>
 </div>
@@ -832,7 +1819,7 @@ img, video, iframe {
                     <h6>الأقسام</h6>
                     <ul class="list-unstyled small">
                         <li><a href="{{ url('/products') }}">المنتجات</a></li>
-                        <li><a href="{{ url('/merchants') }}">المتاجر</a></li>
+                        <!-- <li><a href="{{ url('/merchants') }}">المتاجر</a></li> -->
                         <li><a href="{{ url('/discounts') }}">التخفيضات</a></li>
                         <li><a href="{{ url('/used-products') }}">المستعمل</a></li>
                     </ul>
@@ -840,14 +1827,14 @@ img, video, iframe {
                 <div class="col-lg-3">
                     <h6>معلومات الاتصال</h6>
                     <ul class="list-unstyled small">
-                        <li><i class="fas fa-phone gold-text me-2"></i> +90 555 123 4567</li>
-                        <li><i class="fas fa-envelope gold-text me-2"></i> info@rizk.com</li>
-                        <li><i class="fas fa-map-marker-alt gold-text me-2"></i> اسطنبول، تركيا</li>
+                        <li><i class="fas fa-phone gold-text me-2"></i> 784 128 939 963+</li>
+                        <li><i class="fas fa-envelope gold-text me-2"></i> mastersniper823@gmail.com</li>
+                        <li><i class="fas fa-map-marker-alt gold-text me-2"></i> سوريا  - حلب</li>
                     </ul>
                 </div>
             </div>
             <hr class="my-3" style="border-color: rgba(255,255,255,0.1);">
-            <div class="text-center small">&copy; {{ date('Y') }} Rizk - جميع الحقوق محفوظة</div>
+            <div class="text-center small">&copy; {{ date('Y') }} Jarablus Today - جميع الحقوق محفوظة</div>
         </div>
     </footer>
     
@@ -996,38 +1983,82 @@ document.addEventListener('DOMContentLoaded', function() {
     })
     .catch(error => console.error('Error:', error));
 }
-
-        document.addEventListener('DOMContentLoaded', function() {
-            const slider = document.getElementById('brightnessSlider');
-            const valueDisplay = document.getElementById('brightnessValue');
-            const body = document.body;
-            const html = document.documentElement;
-            
-            const savedBrightness = localStorage.getItem('brightness');
-            if (savedBrightness) {
-                const value = parseInt(savedBrightness);
-                slider.value = value;
-                const brightness = 0.5 + (value / 100);
-                body.style.setProperty('--brightness', brightness);
-                valueDisplay.textContent = value + '%';
-            }
-            
-            slider.addEventListener('input', function() {
-                const value = parseInt(this.value);
-                const brightness = 0.5 + (value / 100);
-                body.style.setProperty('--brightness', brightness);
-                valueDisplay.textContent = value + '%';
-                localStorage.setItem('brightness', value);
-                
-                if (value < 30) {
-                    html.setAttribute('data-theme', 'dark');
-                } else if (value > 60) {
-                    html.removeAttribute('data-theme');
-                }
-            });
-        });
+});
     </script>
     
+
+<script>
+(function () {
+    'use strict';
+
+    function applyTheme(theme) {
+        const html = document.documentElement;
+        const icon = document.getElementById('themeToggleIcon');
+        const button = document.getElementById('themeToggle');
+
+        if (theme === 'dark') {
+            html.setAttribute('data-theme', 'dark');
+
+            if (icon) {
+                icon.className = 'fas fa-sun';
+            }
+
+            if (button) {
+                button.setAttribute('aria-label', 'التبديل إلى الوضع النهاري');
+                button.setAttribute('title', 'الوضع النهاري');
+            }
+        } else {
+            html.removeAttribute('data-theme');
+
+            if (icon) {
+                icon.className = 'fas fa-moon';
+            }
+
+            if (button) {
+                button.setAttribute('aria-label', 'التبديل إلى الوضع الليلي');
+                button.setAttribute('title', 'الوضع الليلي');
+            }
+        }
+    }
+
+    function initializeTheme() {
+        const savedTheme = localStorage.getItem('rizk-theme');
+
+        if (savedTheme === 'dark' || savedTheme === 'light') {
+            applyTheme(savedTheme);
+        } else {
+            applyTheme('light');
+        }
+
+        const button = document.getElementById('themeToggle');
+
+        if (button && !button.dataset.themeBound) {
+            button.dataset.themeBound = '1';
+
+            button.addEventListener('click', function (event) {
+                event.preventDefault();
+                event.stopPropagation();
+
+                const currentTheme =
+                    document.documentElement.getAttribute('data-theme');
+
+                const nextTheme =
+                    currentTheme === 'dark' ? 'light' : 'dark';
+
+                localStorage.setItem('rizk-theme', nextTheme);
+                applyTheme(nextTheme);
+            });
+        }
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initializeTheme);
+    } else {
+        initializeTheme();
+    }
+})();
+</script>
+
     @stack('scripts')
 </body>
 </html>

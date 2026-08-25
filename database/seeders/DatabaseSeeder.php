@@ -51,6 +51,47 @@ class DatabaseSeeder extends Seeder
         // إضافة المستخدمين الأساسيين (من ضمنهم الأدمن)
         $this->createBasicUsers();
         
+
+        // مستخدمون تجريبيون للتقييمات
+        $demoUsers = [
+            [
+                'name' => 'مستخدم 1',
+                'email' => 'user1@rizk.com',
+                'password' => Hash::make('user123'),
+                'user_type' => 'user',
+                'phone' => '+963988777666',
+                'city' => 'دمشق',
+                'is_active' => true,
+            ],
+            [
+                'name' => 'مستخدم 2',
+                'email' => 'user2@rizk.com',
+                'password' => Hash::make('user123'),
+                'user_type' => 'user',
+                'phone' => '+963977666555',
+                'city' => 'حلب',
+                'is_active' => true,
+            ],
+            [
+                'name' => 'مستخدم 3',
+                'email' => 'user3@rizk.com',
+                'password' => Hash::make('user123'),
+                'user_type' => 'user',
+                'phone' => '+963966555444',
+                'city' => 'حمص',
+                'is_active' => true,
+            ],
+        ];
+
+        foreach ($demoUsers as $demoUser) {
+            User::updateOrCreate(
+                ['email' => $demoUser['email']],
+                $demoUser
+            );
+        }
+
+        echo "✅ تم إضافة 3 مستخدمين تجريبيين للتقييمات\n";
+
         // إضافة المنتجات
         if (class_exists(\Database\Seeders\ProductSeeder::class)) {
             $this->call(ProductSeeder::class);

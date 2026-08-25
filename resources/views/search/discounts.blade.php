@@ -40,7 +40,7 @@
         @forelse($discounts as $discount)
             @php
                 $product = $discount->product;
-                $imageUrl = asset('storage/products/product_1.png');
+                $imageUrl = asset('images/product-placeholder.svg');
                 if ($product && $product->images) {
                     $images = json_decode($product->images, true);
                     if (is_array($images) && count($images) > 0 && $images[0]) {
@@ -55,7 +55,7 @@
                     <img src="{{ $imageUrl }}" 
                          alt="{{ $product->name ?? 'منتج' }}"
                          style="width: 100%; height: 150px; object-fit: cover; border-radius: 8px; margin-bottom: 10px;"
-                         onerror="this.src='{{ asset('storage/products/product_1.png') }}'">
+                         onerror="this.onerror=null; this.style.display='none';">
                     
                     <div class="d-flex justify-content-between align-items-start">
                         <h6 style="color: var(--text-primary);">{{ $discount->name }}</h6>
