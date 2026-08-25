@@ -1638,7 +1638,8 @@ body.auth-layout {
                                     @foreach($latestNotifications as $notification)
                                         <li>
                                             <a class="dropdown-item {{ !$notification->is_read ? 'bg-gold-gradient bg-opacity-10' : '' }}" 
-                                               href="{{ $notification->link ?? '#' }}">
+                                               href="{{ $notification->link ?? route('notifications.index') }}"
+                                               data-notification-id="{{ $notification->id }}">
                                                 <div class="d-flex align-items-start gap-2">
                                                     <div>
                                                         <strong>{{ $notification->title }}</strong>
@@ -1748,6 +1749,12 @@ body.auth-layout {
                                 <ul class="dropdown-menu">
                                     <li><a class="dropdown-item" href="{{ route('user.dashboard') }}">لوحتي</a></li>
                                     <li><a class="dropdown-item" href="{{ route('user.products') }}">منتجاتي المستعملة</a></li>
+                                    <li>
+                                        <a class="dropdown-item" href="{{ route('user.posts') }}">
+                                            <i class="fas fa-layer-group me-1"></i>
+                                            منشوراتي
+                                        </a>
+                                    </li>
                                     <li><a class="dropdown-item" href="{{ route('user.products.create') }}">إضافة منتج مستعمل</a></li>
                                     <li><a class="dropdown-item" href="{{ route('user.messages') }}">الرسائل</a></li>
                                     <li><a class="dropdown-item" href="{{ route('user.profile') }}">الملف الشخصي</a></li>

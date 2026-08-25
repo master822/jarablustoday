@@ -253,6 +253,10 @@ Route::middleware(['auth'])->prefix('export')->name('export.')->group(function (
 // ============================================
 Route::middleware(['auth'])->prefix('user')->name('user.')->group(function () {
     Route::get('/dashboard', [UserDashboardController::class, 'dashboard'])->name('dashboard');
+    Route::get('/posts', [UserDashboardController::class, 'myPosts'])->name('posts');
+    Route::get('/posts/{type}/{id}/edit', [UserDashboardController::class, 'editPost'])->name('posts.edit');
+    Route::put('/posts/{type}/{id}', [UserDashboardController::class, 'updatePost'])->name('posts.update');
+    Route::delete('/posts/{type}/{id}', [UserDashboardController::class, 'deletePost'])->name('posts.delete');
     Route::get('/products', [UserDashboardController::class, 'myProducts'])->name('products');
     Route::get('/products/create', [UserDashboardController::class, 'createProduct'])->name('products.create');
     Route::post('/products', [UserDashboardController::class, 'storeProduct'])->name('products.store');

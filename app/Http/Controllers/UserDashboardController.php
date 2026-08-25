@@ -3,12 +3,16 @@
 namespace App\Http\Controllers;
 
 use App\Models\Product;
+use App\Models\News;
+use App\Models\Announcement;
+use App\Models\Property;
 use App\Models\Category;
 use App\Models\Message;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class UserDashboardController extends Controller
 {
@@ -150,6 +154,333 @@ public function storeProduct(Request $request)
         
         $product->delete();
         return redirect()->route('user.products')->with('success', 'تم حذف المنتج بنجاح');
+    }
+
+
+    /**
+     * جميع منشورات المستخدم:
+     * أخبار + إعلانات + عقارات + منتجات.
+     */
+    public function myPosts(Request $request)
+    {
+        $userId = Auth::id();
+
+        $posts = collect();
+
+        // الأخبار
+        $news = News::where('user_id', $userId)
+            ->withCount(['likes', 'comments'])
+            ->latest()
+            ->get()
+            ->map(function ($item) {
+                $item->post_type = 'news';
+                $item->post_type_label = 'خبر';
+                $item->post_title = $item->title;
+                $item->post_description = $item->content;
+                $item->post_status = $item->status;
+                $item->post_url = route('news.show', $item->id);
+                return $item;
+            });
+
+        // الإعلانات
+        $announcements = Announcement::where('user_id', $userId)
+            ->withCount(['likes', 'comments'])
+            ->latest()
+            ->get()
+            ->map(function ($item) {
+                $item->post_type = 'announcement';
+                $item->post_type_label = 'إعلان';
+                $item->post_title = $item->title;
+                $item->post_description = $item->content;
+                $item->post_status = $item->status;
+                $item->post_url = route('announcements.show', $item->id);
+                return $item;
+            });
+
+        // العقارات
+        $properties = Property::where('user_id', $userId)
+            ->withCount(['likes', 'comments'])
+            ->latest()
+            ->get()
+            ->map(function ($item) {
+                $item->post_type = 'property';
+                $item->post_type_label = 'عقار';
+                $item->post_title = $item->title;
+                $item->post_description = $item->description;
+                $item->post_status = $item->status;
+                $item->post_url = route('properties.show', $item->id);
+                return $item;
+            });
+
+        // المنتجات
+        $products = Product::where('user_id', $userId)
+            ->withCount([
+                'likes as active_likes_count' => function ($q) {
+                    $q->where('is_liked', true);
+                }
+            ])
+            ->latest()
+            ->get()
+            ->map(function ($item) {
+                $item->post_type = 'product';
+                $item->post_type_label = 'منتج';
+                $item->post_title = $item->name;
+                $item->post_description = $item->description;
+                $item->post_status = $item->status;
+                $item->post_url = route('products.show', $item->id);
+                $item->likes_count = $item->active_likes_count ?? 0;
+                $item->comments_count = 0;
+                return $item;
+            });
+
+        $posts = $posts
+            ->merge($news)
+            ->merge($announcements)
+            ->merge($properties)
+            ->merge($products)
+            ->sortByDesc('created_at')
+            ->values();
+
+        // فلترة النوع
+        $type = $request->get('type');
+
+        if (in_array($type, ['news', 'announcement', 'property', 'product'], true)) {
+            $posts = $posts
+                ->filter(fn ($post) => $post->post_type === $type)
+                ->values();
+        }
+
+        // Pagination موحدة
+        $perPage = 12;
+        $page = LengthAwarePaginator::resolveCurrentPage();
+        $items = $posts->slice(($page - 1) * $perPage, $perPage)->values();
+
+        $posts = new LengthAwarePaginator(
+            $items,
+            $posts->count(),
+            $perPage,
+            $page,
+            [
+                'path' => request()->url(),
+                'query' => request()->query(),
+            ]
+        );
+
+        return view('user.my-posts', compact('posts', 'type'));
+    }
+
+    /**
+     * صفحة تعديل المنشور.
+     */
+    public function editPost($type, $id)
+    {
+        $userId = Auth::id();
+
+        if ($type === 'product') {
+            return redirect()->route('user.products.edit', $id);
+        }
+
+        $modelClass = match ($type) {
+            'news' => News::class,
+            'announcement' => Announcement::class,
+            'property' => Property::class,
+            default => abort(404),
+        };
+
+        $post = $modelClass::where('id', $id)
+            ->where('user_id', $userId)
+            ->firstOrFail();
+
+        return view('user.edit-post', compact('post', 'type'));
+    }
+
+    /**
+     * تحديث منشور المستخدم.
+     */
+    public function updatePost(Request $request, $type, $id)
+    {
+        $userId = Auth::id();
+
+        if ($type === 'product') {
+            return redirect()->route('user.products.edit', $id);
+        }
+
+        if ($type === 'news') {
+            $post = News::where('id', $id)
+                ->where('user_id', $userId)
+                ->firstOrFail();
+
+            $request->validate([
+                'title' => 'required|string|max:255',
+                'content' => 'required|string|min:10',
+                'image' => 'nullable|image|max:4096',
+            ]);
+
+            $post->title = $request->title;
+            $post->content = $request->content;
+
+            if ($request->hasFile('image')) {
+                if ($post->image) {
+                    Storage::disk('public')->delete($post->image);
+                }
+
+                $post->image = $request->file('image')
+                    ->store('news', 'public');
+            }
+
+            // التعديل يعيد المنشور للمراجعة
+            $post->status = 'pending';
+            $post->approved_by = null;
+            $post->approved_at = null;
+
+            $post->save();
+
+            return redirect()
+                ->route('user.posts')
+                ->with('success', 'تم تعديل الخبر وإرساله للمراجعة.');
+        }
+
+        if ($type === 'announcement') {
+            $post = Announcement::where('id', $id)
+                ->where('user_id', $userId)
+                ->firstOrFail();
+
+            $request->validate([
+                'title' => 'required|string|max:255',
+                'content' => 'required|string|min:5',
+                'phone' => 'nullable|string|max:30',
+                'city' => 'nullable|string|max:100',
+                'image' => 'nullable|image|max:4096',
+            ]);
+
+            $post->title = $request->title;
+            $post->content = $request->content;
+            $post->phone = $request->phone;
+            $post->city = $request->city;
+
+            if ($request->hasFile('image')) {
+                if ($post->image) {
+                    Storage::disk('public')->delete($post->image);
+                }
+
+                $post->image = $request->file('image')
+                    ->store('announcements', 'public');
+            }
+
+            $post->status = 'pending';
+            $post->approved_by = null;
+            $post->approved_at = null;
+
+            $post->save();
+
+            return redirect()
+                ->route('user.posts')
+                ->with('success', 'تم تعديل الإعلان وإرساله للمراجعة.');
+        }
+
+        if ($type === 'property') {
+            $post = Property::where('id', $id)
+                ->where('user_id', $userId)
+                ->firstOrFail();
+
+            $request->validate([
+                'type' => 'required|in:sale,rent',
+                'title' => 'required|string|max:255',
+                'description' => 'required|string|min:10',
+                'price' => 'required|numeric|min:0',
+                'city' => 'required|string|max:100',
+                'area' => 'nullable|string|max:100',
+                'address' => 'nullable|string|max:255',
+                'rooms' => 'nullable|integer|min:0',
+                'bathrooms' => 'nullable|integer|min:0',
+                'area_m2' => 'required|numeric|min:1',
+                'building_age' => 'nullable|integer|min:0|max:300',
+                'finishing_type' => 'nullable|string|max:100',
+            ]);
+
+            $post->type = $request->type;
+            $post->title = $request->title;
+            $post->description = $request->description;
+            $post->price = $request->price;
+            $post->city = $request->city;
+            $post->area = $request->area;
+            $post->address = $request->address;
+            $post->rooms = $request->rooms;
+            $post->bathrooms = $request->bathrooms;
+            $post->area_m2 = $request->area_m2;
+            $post->building_age = $request->building_age;
+            $post->finishing_type = $request->finishing_type;
+
+            $post->status = 'pending';
+            $post->approved_by = null;
+            $post->approved_at = null;
+
+            $post->save();
+
+            return redirect()
+                ->route('user.posts')
+                ->with('success', 'تم تعديل العقار وإرساله للمراجعة.');
+        }
+
+        abort(404);
+    }
+
+    /**
+     * حذف منشور يملكه المستخدم فقط.
+     */
+    public function deletePost($type, $id)
+    {
+        $userId = Auth::id();
+
+        if ($type === 'product') {
+            return $this->deleteProduct($id);
+        }
+
+        if ($type === 'news') {
+            $post = News::where('id', $id)
+                ->where('user_id', $userId)
+                ->firstOrFail();
+
+            if ($post->image) {
+                Storage::disk('public')->delete($post->image);
+            }
+
+            $post->delete();
+
+            return back()->with('success', 'تم حذف الخبر بنجاح.');
+        }
+
+        if ($type === 'announcement') {
+            $post = Announcement::where('id', $id)
+                ->where('user_id', $userId)
+                ->firstOrFail();
+
+            if ($post->image) {
+                Storage::disk('public')->delete($post->image);
+            }
+
+            $post->delete();
+
+            return back()->with('success', 'تم حذف الإعلان بنجاح.');
+        }
+
+        if ($type === 'property') {
+            $post = Property::where('id', $id)
+                ->where('user_id', $userId)
+                ->firstOrFail();
+
+            if (is_array($post->images)) {
+                foreach ($post->images as $image) {
+                    Storage::disk('public')->delete($image);
+                }
+            }
+
+            $post->delete();
+
+            return back()->with('success', 'تم حذف العقار بنجاح.');
+        }
+
+        abort(404);
     }
 
     public function messages()
