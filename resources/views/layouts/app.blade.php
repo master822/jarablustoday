@@ -1492,46 +1492,6 @@ body.auth-layout {
                         <a class="nav-link" href="{{ url('/announcements') }}">الإعلانات</a>
                     </li>
 
-@auth
-
-<li class="nav-item dropdown">
-    <a class="nav-link dropdown-toggle"
-       href="#"
-       id="createDropdown"
-       role="button"
-       data-bs-toggle="dropdown"
-       aria-expanded="false">
-        <i class="fas fa-plus-circle me-1"></i>
-        إنشاء
-    </a>
-
-    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="createDropdown">
-
-        <li>
-            <a class="dropdown-item" href="{{ route('news.create') }}">
-                <i class="fas fa-newspaper me-2"></i>
-                إضافة خبر
-            </a>
-        </li>
-
-        <li>
-            <a class="dropdown-item" href="{{ route('announcements.create') }}">
-                <i class="fas fa-bullhorn me-2"></i>
-                إضافة إعلان
-            </a>
-        </li>
-
-        <li>
-            <a class="dropdown-item" href="{{ route('properties.create') }}">
-                <i class="fas fa-house me-2"></i>
-                إضافة عقار
-            </a>
-        </li>
-
-    </ul>
-</li>
-
-@endauth
 
                 </ul>
                 
