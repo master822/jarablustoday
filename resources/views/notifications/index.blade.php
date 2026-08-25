@@ -37,6 +37,12 @@
                                 <i class="fas fa-star text-warning"></i>
                             @elseif($notification->type == 'order')
                                 <i class="fas fa-shopping-cart text-success"></i>
+                            @elseif($notification->type == 'content_pending')
+                                <i class="fas fa-hourglass-half text-warning"></i>
+                            @elseif($notification->type == 'content_approved')
+                                <i class="fas fa-check-circle text-success"></i>
+                            @elseif($notification->type == 'content_rejected')
+                                <i class="fas fa-times-circle text-danger"></i>
                             @else
                                 <i class="fas fa-bell text-info"></i>
                             @endif

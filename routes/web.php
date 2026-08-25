@@ -202,8 +202,8 @@ Route::middleware(['auth'])->prefix('notifications')->name('notifications.')->gr
     Route::get('/', [NotificationController::class, 'index'])->name('index');
     Route::post('/{id}/mark-read', [NotificationController::class, 'markAsRead'])->name('mark-read');
     Route::post('/mark-all-read', [NotificationController::class, 'markAllAsRead'])->name('mark-all-read');
-    Route::delete('/{id}', [NotificationController::class, 'delete'])->name('delete');
-    Route::delete('/delete-all', [NotificationController::class, 'deleteAll'])->name('delete-all');
+    Route::delete('/{id}', [NotificationController::class, 'destroy'])->name('delete');
+    Route::delete('/delete-all', [NotificationController::class, 'destroyAll'])->name('delete-all');
 });
 
 // ============================================

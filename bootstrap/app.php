@@ -11,10 +11,24 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        /*
+         * Laravel 12 middleware configuration.
+         *
+         * The web group keeps Laravel's standard middleware and adds
+         * the application's localization middleware.
+         */
+        $middleware->web(append: [
+            \App\Http\Middleware\LocalizationMiddleware::class,
+        ]);
+
+        /*
+         * Application middleware aliases.
+         */
         $middleware->alias([
             'admin' => \App\Http\Middleware\AdminMiddleware::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //
-    })->create();
+    })
+    ->create();

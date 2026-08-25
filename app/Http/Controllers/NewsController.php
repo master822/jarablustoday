@@ -14,7 +14,10 @@ class NewsController extends Controller
     {
         $news = News::approved()
             ->with('user')
-            ->withCount(['likes', 'comments'])
+            ->withCount([
+                'likes',
+                'comments' => fn ($q) => $q->where('status', 'approved')
+            ])
             ->latest()
             ->paginate(12);
 
@@ -26,9 +29,15 @@ class NewsController extends Controller
         $news = News::approved()
             ->with([
                 'user',
-                'comments' => fn ($q) => $q->where('status', 'approved')->with('user')
+                'comments' => fn ($q) =>
+                    $q->where('status', 'approved')
+                      ->with('user')
+                      ->latest()
             ])
-            ->withCount(['likes', 'comments'])
+            ->withCount([
+                'likes',
+                'comments' => fn ($q) => $q->where('status', 'approved')
+            ])
             ->findOrFail($id);
 
         return view('news.show', compact('news'));
@@ -57,10 +66,12 @@ class NewsController extends Controller
         ];
 
         if ($request->hasFile('image')) {
-            $data['image'] = $request->file('image')->store('news', 'public');
+            $data['image'] = $request
+                ->file('image')
+                ->store('news', 'public');
         }
 
-        News::create($data);
+        $news = News::create($data);
 
         $admins = User::where('user_type', 'admin')->get();
 
@@ -68,9 +79,15 @@ class NewsController extends Controller
             Notification::create([
                 'user_id' => $admin->id,
                 'sender_id' => Auth::id(),
+
+                'notifiable_type' => 'news',
+                'notifiable_id' => $news->id,
+
                 'type' => 'content_pending',
                 'title' => 'خبر جديد بانتظار المراجعة',
-                'message' => 'المستخدم ' . Auth::user()->name . ' أرسل خبرًا جديدًا بعنوان: ' . $data['title'],
+                'message' =>
+                    'المستخدم ' . Auth::user()->name .
+                    ' أرسل خبرًا جديدًا بعنوان: ' . $news->title,
                 'link' => route('admin.news'),
                 'is_read' => false,
             ]);
@@ -78,6 +95,9 @@ class NewsController extends Controller
 
         return redirect()
             ->route('news.index')
-            ->with('success', 'تم إرسال الخبر إلى الإدارة للمراجعة والموافقة.');
+            ->with(
+                'success',
+                'تم إرسال الخبر إلى الإدارة للمراجعة والموافقة.'
+            );
     }
 }

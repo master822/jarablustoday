@@ -74,12 +74,12 @@ class ContentInteractionController extends Controller
             'commentable_id' => $model->id,
             'commentable_type' => get_class($model),
             'comment' => $request->content,
-            'status' => 'pending',
+            'status' => 'approved',
         ]);
 
         return back()->with(
             'success',
-            'تم إرسال تعليقك إلى الإدارة للمراجعة.'
+            'تم نشر تعليقك بنجاح.'
         );
     }
 }

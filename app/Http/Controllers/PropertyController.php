@@ -25,7 +25,10 @@ class PropertyController extends Controller
         $query = Property::approved()
             ->where('type', $type)
             ->with('user')
-            ->withCount(['likes', 'comments']);
+            ->withCount([
+                'likes',
+                'comments' => fn ($q) => $q->where('status', 'approved')
+            ]);
 
         if ($request->filled('q')) {
             $search = $request->q;
@@ -67,9 +70,15 @@ class PropertyController extends Controller
         $property = Property::approved()
             ->with([
                 'user',
-                'comments' => fn ($q) => $q->where('status', 'approved')->with('user')
+                'comments' => fn ($q) =>
+                    $q->where('status', 'approved')
+                      ->with('user')
+                      ->latest()
             ])
-            ->withCount(['likes', 'comments'])
+            ->withCount([
+                'likes',
+                'comments' => fn ($q) => $q->where('status', 'approved')
+            ])
             ->findOrFail($id);
 
         return view('properties.show', compact('property'));

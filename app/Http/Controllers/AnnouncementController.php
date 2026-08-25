@@ -14,15 +14,18 @@ class AnnouncementController extends Controller
     {
         $query = Announcement::approved()
             ->with('user')
-            ->withCount(['likes', 'comments']);
+            ->withCount([
+                'likes',
+                'comments' => fn ($q) => $q->where('status', 'approved')
+            ]);
 
         if ($request->filled('q')) {
             $search = $request->q;
 
             $query->where(function ($q) use ($search) {
                 $q->where('title', 'like', "%{$search}%")
-                  ->orWhere('content', 'like', "%{$search}%")
-                  ->orWhere('city', 'like', "%{$search}%");
+                    ->orWhere('content', 'like', "%{$search}%")
+                    ->orWhere('city', 'like', "%{$search}%");
             });
         }
 
@@ -31,7 +34,10 @@ class AnnouncementController extends Controller
             ->paginate(12)
             ->withQueryString();
 
-        return view('announcements.index', compact('announcements'));
+        return view(
+            'announcements.index',
+            compact('announcements')
+        );
     }
 
     public function show($id)
@@ -39,12 +45,21 @@ class AnnouncementController extends Controller
         $announcement = Announcement::approved()
             ->with([
                 'user',
-                'comments' => fn ($q) => $q->where('status', 'approved')->with('user')
+                'comments' => fn ($q) =>
+                    $q->where('status', 'approved')
+                      ->with('user')
+                      ->latest()
             ])
-            ->withCount(['likes', 'comments'])
+            ->withCount([
+                'likes',
+                'comments' => fn ($q) => $q->where('status', 'approved')
+            ])
             ->findOrFail($id);
 
-        return view('announcements.show', compact('announcement'));
+        return view(
+            'announcements.show',
+            compact('announcement')
+        );
     }
 
     public function create()
@@ -72,10 +87,12 @@ class AnnouncementController extends Controller
         ];
 
         if ($request->hasFile('image')) {
-            $data['image'] = $request->file('image')->store('announcements', 'public');
+            $data['image'] = $request
+                ->file('image')
+                ->store('announcements', 'public');
         }
 
-        Announcement::create($data);
+        $announcement = Announcement::create($data);
 
         $admins = User::where('user_type', 'admin')->get();
 
@@ -83,9 +100,16 @@ class AnnouncementController extends Controller
             Notification::create([
                 'user_id' => $admin->id,
                 'sender_id' => Auth::id(),
+
+                'notifiable_type' => 'announcement',
+                'notifiable_id' => $announcement->id,
+
                 'type' => 'content_pending',
                 'title' => 'إعلان جديد بانتظار المراجعة',
-                'message' => 'المستخدم ' . Auth::user()->name . ' أرسل إعلانًا جديدًا بعنوان: ' . $data['title'],
+                'message' =>
+                    'المستخدم ' . Auth::user()->name .
+                    ' أرسل إعلانًا جديدًا بعنوان: ' .
+                    $announcement->title,
                 'link' => route('admin.announcements'),
                 'is_read' => false,
             ]);
@@ -93,6 +117,9 @@ class AnnouncementController extends Controller
 
         return redirect()
             ->route('announcements.index')
-            ->with('success', 'تم إرسال الإعلان إلى الإدارة للموافقة قبل نشره.');
+            ->with(
+                'success',
+                'تم إرسال الإعلان إلى الإدارة للموافقة قبل نشره.'
+            );
     }
 }

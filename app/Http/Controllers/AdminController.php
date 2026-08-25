@@ -382,11 +382,20 @@ public function updateProfile(Request $request)
         return view('admin.news', compact('items'));
     }
 
-private function removePendingNotification($title)
+private function removePendingNotification($title, $senderId = null)
 {
-    Notification::where('type', 'content_pending')
-        ->where('message', 'like', '%' . $title . '%')
-        ->delete();
+    $query = Notification::where('type', 'content_pending')
+        ->where('message', 'like', '%' . $title . '%');
+
+    // The pending notification was created with sender_id
+    // equal to the content owner's user ID.
+    // This prevents deleting another user's notification
+    // when two contents have the same title.
+    if ($senderId !== null) {
+        $query->where('sender_id', $senderId);
+    }
+
+    $query->delete();
 }
 
 public function approveNews($id)
@@ -400,7 +409,7 @@ public function approveNews($id)
         'rejection_reason' => null,
     ]);
 
-    $this->removePendingNotification($item->title);
+    $this->removePendingNotification($item->title, $item->user_id);
 
     Notification::create([
         'user_id' => $item->user_id,
@@ -430,7 +439,7 @@ public function rejectNews(Request $request, $id)
         'rejection_reason' => $reason,
     ]);
 
-    $this->removePendingNotification($item->title);
+    $this->removePendingNotification($item->title, $item->user_id);
 
     Notification::create([
         'user_id' => $item->user_id,
@@ -456,7 +465,7 @@ public function approveAnnouncement($id)
         'rejection_reason' => null,
     ]);
 
-    $this->removePendingNotification($item->title);
+    $this->removePendingNotification($item->title, $item->user_id);
 
     Notification::create([
         'user_id' => $item->user_id,
@@ -486,7 +495,7 @@ public function rejectAnnouncement(Request $request, $id)
         'rejection_reason' => $reason,
     ]);
 
-    $this->removePendingNotification($item->title);
+    $this->removePendingNotification($item->title, $item->user_id);
 
     Notification::create([
         'user_id' => $item->user_id,
@@ -512,7 +521,7 @@ public function approveProperty($id)
         'rejection_reason' => null,
     ]);
 
-    $this->removePendingNotification($item->title);
+    $this->removePendingNotification($item->title, $item->user_id);
 
     Notification::create([
         'user_id' => $item->user_id,
@@ -544,7 +553,7 @@ public function rejectProperty(Request $request, $id)
         'rejection_reason' => $reason,
     ]);
 
-    $this->removePendingNotification($item->title);
+    $this->removePendingNotification($item->title, $item->user_id);
 
     Notification::create([
         'user_id' => $item->user_id,

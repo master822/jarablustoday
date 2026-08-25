@@ -1820,150 +1820,148 @@ body.auth-layout {
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     
     <script>
-// ===== نظام الإعجابات =====
-// ===== نظام الإعجابات =====
+/* ============================================================
+   PRODUCT LIKE SYSTEM
+   ============================================================ */
+
 function toggleLike(productId, element) {
     @if(!Auth::check())
         alert('يجب تسجيل الدخول أولاً للإعجاب بالمنتج');
         return;
     @endif
-    
-    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content || '{{ csrf_token() }}';
-    
-    // تغيير لون الزر فوراً لإعطاء رد فعل سريع
-    const isCurrentlyLiked = element.classList.contains('liked');
-    if (isCurrentlyLiked) {
-        element.classList.remove('liked');
-        element.style.color = '#94a3b8';
-    } else {
-        element.classList.add('liked');
-        element.style.color = '#ef4444';
+
+    if (!productId || !element) {
+        return;
     }
-    
+
+    // منع الضغط المتكرر أثناء إرسال الطلب
+    if (element.dataset.likeLoading === 'true') {
+        return;
+    }
+
+    const csrfToken =
+        document.querySelector('meta[name="csrf-token"]')?.content ||
+        '{{ csrf_token() }}';
+
+    const wasLiked = element.classList.contains('liked');
+
+    element.dataset.likeLoading = 'true';
+    element.disabled = true;
+
     fetch(`/products/${productId}/like`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
             'X-CSRF-TOKEN': csrfToken,
             'Accept': 'application/json'
-        }
+        },
+        credentials: 'same-origin'
     })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            const isLiked = data.is_liked;
-            const likesCount = data.likes_count;
-            
-            // تحديث عدد الإعجابات في الزر
-            const countSpan = element.querySelector('.likes-count');
-            if (countSpan) {
-                countSpan.textContent = likesCount;
-            }
-            
-            // تحديث عدد الإعجابات في الأعلى (في صفحة العرض)
-            const displayCount = document.getElementById('likes-count-display');
-            if (displayCount) {
-                displayCount.textContent = likesCount;
-            }
-            
-            // تحديث حالة الزر بناءً على الاستجابة من السيرفر
-            if (isLiked) {
-                element.classList.add('liked');
-                element.style.color = '#ef4444';
-            } else {
-                element.classList.remove('liked');
-                element.style.color = '#94a3b8';
-            }
-        } else {
-            // في حالة الخطأ، نرجع الحالة السابقة
-            if (isCurrentlyLiked) {
-                element.classList.add('liked');
-                element.style.color = '#ef4444';
-            } else {
-                element.classList.remove('liked');
-                element.style.color = '#94a3b8';
-            }
-            alert(data.message || 'حدث خطأ');
+    .then(async response => {
+        let data = {};
+
+        try {
+            data = await response.json();
+        } catch (e) {
+            data = {};
         }
+
+        if (!response.ok) {
+            throw new Error(
+                data.message || `HTTP ${response.status}`
+            );
+        }
+
+        return data;
+    })
+    .then(data => {
+        if (!data.success) {
+            throw new Error(data.message || 'حدث خطأ أثناء الإعجاب');
+        }
+
+        const isLiked = Boolean(data.is_liked);
+        const likesCount = Number(data.likes_count ?? 0);
+
+        // تحديث عدد الإعجابات داخل الزر
+        const countSpan = element.querySelector('.likes-count');
+
+        if (countSpan) {
+            countSpan.textContent = likesCount;
+        }
+
+        // تحديث أي عداد موجود في صفحة المنتج
+        const displayCount =
+            document.getElementById('likes-count-display');
+
+        if (displayCount) {
+            displayCount.textContent = likesCount;
+        }
+
+        // تحديث حالة الزر حسب السيرفر
+        element.classList.toggle('liked', isLiked);
+
+        element.style.color =
+            isLiked ? '#ef4444' : '#94a3b8';
+
+        element.setAttribute(
+            'aria-pressed',
+            isLiked ? 'true' : 'false'
+        );
     })
     .catch(error => {
-        console.error('Error:', error);
-        // في حالة الخطأ، نرجع الحالة السابقة
-        if (isCurrentlyLiked) {
-            element.classList.add('liked');
-            element.style.color = '#ef4444';
+        console.error('Like error:', error);
+
+        // إعادة الحالة السابقة إذا فشل الطلب
+        element.classList.toggle('liked', wasLiked);
+
+        element.style.color =
+            wasLiked ? '#ef4444' : '#94a3b8';
+
+        alert(error.message || 'حدث خطأ في الاتصال');
+    })
+    .finally(() => {
+        element.dataset.likeLoading = 'false';
+        element.disabled = false;
+    });
+}
+
+
+/* ============================================================
+   INITIALIZE LIKE BUTTONS
+   ============================================================ */
+
+document.addEventListener('DOMContentLoaded', function () {
+
+    document.querySelectorAll('.btn-like').forEach(function (button) {
+
+        const productId = button.dataset.productId;
+
+        if (!productId) {
+            return;
+        }
+
+        // ضبط اللون الابتدائي
+        if (button.classList.contains('liked')) {
+            button.style.color = '#ef4444';
+            button.setAttribute('aria-pressed', 'true');
         } else {
-            element.classList.remove('liked');
-            element.style.color = '#94a3b8';
+            button.style.color = '#94a3b8';
+            button.setAttribute('aria-pressed', 'false');
         }
-        alert('حدث خطأ في الاتصال');
-    });
-}
 
-// تفعيل زر الإعجاب عند تحميل الصفحة
-document.addEventListener('DOMContentLoaded', function() {
-    document.querySelectorAll('.btn-like').forEach(button => {
-        const productId = button.dataset.productId;
-        if (productId) {
-            // تعيين الحالة الأولية
-            if (button.classList.contains('liked')) {
-                button.style.color = '#ef4444';
-            } else {
-                button.style.color = '#94a3b8';
-            }
-            
-            button.onclick = function(e) {
-                e.preventDefault();
-                e.stopPropagation();
-                toggleLike(productId, this);
-            };
-        }
-    });
-});
+        // onclick واحد فقط
+        button.onclick = function (event) {
+            event.preventDefault();
+            event.stopPropagation();
 
-// تفعيل زر الإعجاب عند تحميل الصفحة
-document.addEventListener('DOMContentLoaded', function() {
-    document.querySelectorAll('.btn-like').forEach(button => {
-        const productId = button.dataset.productId;
-        if (productId) {
-            button.onclick = function(e) {
-                e.preventDefault();
-                toggleLike(productId, this);
-            };
-        }
-    });
-});
+            toggleLike(productId, button);
+        };
 
-    function toggleLike(productId, element) {
-    fetch(`/products/${productId}/like`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-        }
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            const isLiked = data.is_liked;
-            const likesCount = data.likes_count;
-            
-            // تحديث عدد الإعجابات
-            const countSpan = element.querySelector('.likes-count');
-            countSpan.textContent = likesCount;
-            
-            // تحديث حالة الزر
-            if (isLiked) {
-                element.classList.add('liked');
-            } else {
-                element.classList.remove('liked');
-            }
-        }
-    })
-    .catch(error => console.error('Error:', error));
-}
+    });
+
 });
-    </script>
+</script>
+
     
 
 <script>

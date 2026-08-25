@@ -12,6 +12,8 @@ class Notification extends Model
     protected $fillable = [
         'user_id',
         'sender_id',
+        'notifiable_type',
+        'notifiable_id',
         'type',
         'title',
         'message',
@@ -31,5 +33,10 @@ class Notification extends Model
     public function sender()
     {
         return $this->belongsTo(User::class, 'sender_id');
+    }
+
+    public function notifiable()
+    {
+        return $this->morphTo();
     }
 }
