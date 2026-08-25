@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Rizk - رزق')
+@section('title', 'جرابلس اليوم')
 
 @section('content')
 <!-- ===== سلايدر الصور - عرض كامل ===== -->
@@ -163,7 +163,7 @@
                             <div class="brand-icon mx-auto mb-3" style="width: 80px; height: 80px; background: linear-gradient(135deg, var(--primary-color), var(--primary-dark)); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 2rem;">
                                 <i class="fas fa-gem"></i>
                             </div>
-                            <h2 class="display-5 fw-bold mb-3 gold-gradient-text">انضم إلى Rizk اليوم</h2>
+                            <h2 class="display-5 fw-bold mb-3 gold-gradient-text">انضم إلى جرابلس اليوم</h2>
                             <p class="lead mb-4">ابدأ في البيع أو الشراء مع مجتمعنا المتنامي</p>
                             <div class="d-flex justify-content-center gap-3">
                                 <a href="{{ route('register') }}" class="btn btn-rizk-primary btn-lg">
